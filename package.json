@@ -1,0 +1,17 @@
+{
+    "name": "BlockChain",
+    "version": "0.0.1",
+    "description": "NodeJs Blockchain simulation",
+    "keywords": [
+        "Blockchain",
+        "nodeJs"
+    ],
+    "repository": "https://github.com/Telexine/BlockChainJs",
+    "homepage": " ",
+    "author": " ",
+    "dependencies": {
+        "crypto-js": "^3.1.9-1",
+        "json-server": "^0.12.1"
+    },
+    "main": "main.js"
+}
