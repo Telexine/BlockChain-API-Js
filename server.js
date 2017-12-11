@@ -1,3 +1,4 @@
+ 
 const SHA256 = require("crypto-js/sha256");
 
 //https://github.com/SavjeeTutorials/SavjeeCoin
@@ -26,6 +27,34 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var app = express();
 
+//OpenSSL 
+// do this first
+// openssl genrsa -out ./my-server.key.pem 2048 
+// openssl rsa -in ./my-server.key.pem -pubout -out ./my-server.pub 
+
+
+'use strict';
+ 
+var ursa = require('ursa')
+, crt
+, key
+, msg
+;
+
+key = ursa.createPrivateKey(fs.readFileSync('./my-server.key.pem'));
+crt = ursa.createPublicKey(fs.readFileSync('./my-server.pub'));
+/*
+//test
+console.log('Encrypt with Public');
+msg = crt.encrypt("Everything is going to be 200 OK", 'utf8', 'base64');
+console.log('encrypted', msg, '\n');
+ 
+console.log('Decrypt with Private');
+msg = key.decrypt(msg, 'base64', 'utf8');
+console.log('decrypted', msg, '\n');
+*/
+
+//END OpenSSL
  
 app.use(bodyParser.urlencoded({
     extended: true
@@ -34,28 +63,41 @@ app.use(bodyParser.json());
  
 
 
-
+// Send  HTML page to client
 app.get('/', function(req, res){
-    console.log('GET /')
+    var ip = req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress;
+    console.log(Date.now()+'|| GET /'+ip+" ")
     //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
     var html = fs.readFileSync('index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(html);
 });
 
+
+// Listener 
 app.post('/', function(req, res){
     console.log('POST /');
     console.dir(req.body);
+    
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end('thanks');
 });
+
+
+
 
 port = 3000;
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
 
 
-//Express 
+//end Express 
+
+
+
+
+
 
 const  TX = { //Transaction Type
     CREATE : {value:0},

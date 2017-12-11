@@ -1,14 +1,23 @@
 <html>
     <body>
-        <form method="post" action="http://localhost:3000">
-            Name: <input type="text" name="name" />
-            <input type="submit" value="Submit" />
-        </form>
+         
+            
+            <input type="submit" value="Submit" onclick="Send()" />
+         
     
         <script type="text/JavaScript">
-            console.log('begin');
+
+var promiseCount = 0;
+            
+function Send(){
+let myFirstPromise = new Promise((resolve, reject) => {
+ 
+    console.log('begin');
             var http = new XMLHttpRequest();
-            var params = "text=stuff";
+            var params = "text=stuff"; // data sender
+
+
+            
             http.open("POST", "http://localhost:3000", true);
     
             http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -28,7 +37,21 @@
             console.log('sending...')
             http.send(params);
             console.log('end');
-    
+
+
+    setTimeout(function(){
+      resolve("Success!"); // Yay! Everything went well!
+    }, 250);
+  });
+  
+  myFirstPromise.then((successMessage) => {
+    // successMessage is whatever we passed in the resolve(...) function above.
+    // It doesn't have to be a string, but if it is only a succeed message, it probably will be.
+    console.log("Yay! " + successMessage);
+  });
+}
+
+           
         </script>
     
     </body>
