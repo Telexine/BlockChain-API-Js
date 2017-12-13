@@ -26,6 +26,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var app = express();
+json = require('json-simple');
 
 //OpenSSL 
 // do this first
@@ -64,10 +65,10 @@ app.use(bodyParser.json());
 
 
 // Send  HTML page to client
-app.get('/', function(req, res){
+app.get('/getCoupon', function(req, res){
     var ip = req.headers['x-forwarded-for'] ||
     req.connection.remoteAddress;
-    console.log(Date.now()+'|| GET /'+ip+" ")
+    console.log(new Date()+' || GET /'+ip+" ")
     //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
     var html = fs.readFileSync('index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
@@ -76,12 +77,21 @@ app.get('/', function(req, res){
 
 
 // Listener 
-app.post('/', function(req, res){
-    console.log('POST /');
-    console.dir(req.body);
+app.post('/getCoupon', function(req, res){
+    console.log('getRequest from '+ req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress+ " ");
+    auth = req.body.data.auth;
+    vendor = req.body.data.VendorID;
+    couponID = req.body.data.couponID;
+ 
+    console.log();
     
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end('thanks');
+    //Vaildate done here 
+
+
+
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end('thanks'+" " +req.body.data.couponID);
 });
 
 
@@ -109,7 +119,7 @@ class transaction{ // inside Data of class Block
 
     constructor(TX,signature,VendorAddress,amount){
         this.TX = TX;
-        this.signature = signature;
+        this.signature = signature;// client pubkey
         this.VendorAddress = VendorAddress;
         this.amount = amount;
 
@@ -189,6 +199,7 @@ data.TX=TX.CREATE;
 data.signature="me";
 data.VendorAddress="vendorID";
 data.amount="2";
+
 AECOIN.addBlock(new Block(1,data));
  //svr 
 
