@@ -16,7 +16,7 @@
         "firebase-admin": "^5.5.1",
         "json-server": "^0.12.1",
         "json-simple": "^0.9.6",
-        "ursa": "^0.9.4"
+        "mongodb": "^3.0.0-rc0"
     },
     "main": "main.js"
 }
