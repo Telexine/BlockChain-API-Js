@@ -3,7 +3,8 @@ const SHA256 = require("crypto-js/sha256");
 
 //https://github.com/SavjeeTutorials/SavjeeCoin
 json = require('json-simple');
- 
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/mydb";
 
 
 
@@ -35,15 +36,7 @@ json = require('json-simple');
 
 
 'use strict';
- 
-var ursa = require('ursa')
-, crt
-, key
-, msg
-;
-
-key = ursa.createPrivateKey(fs.readFileSync('./my-server.key.pem'));
-crt = ursa.createPublicKey(fs.readFileSync('./my-server.pub'));
+  
 /*
 //test
 console.log('Encrypt with Public');
@@ -103,10 +96,6 @@ console.log('Listening at http://localhost:' + port)
 
 
 //end Express 
-
-
-
-
 
 
 const  TX = { //Transaction Type
