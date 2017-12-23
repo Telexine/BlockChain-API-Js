@@ -1,24 +1,45 @@
  
 const SHA256 = require("crypto-js/sha256");
+const port = 3000;
 
 //https://github.com/SavjeeTutorials/SavjeeCoin
 json = require('json-simple');
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/mydb";
-
-
-
-// Firebase Admin
-/*
+firebase = require('firebase');
 var admin = require("firebase-admin");
 
-var serviceAccount = require("couponchaintx-firebase-adminsdk-5ut0r-d5acb354b0.json");
+
+
+//##########  INIT FBase Database  
+var config = {
+    apiKey: "AIzaSyDZ8RandVyq9fv-VE4Ugg49eqfl4c2U49k",
+    authDomain: "couponchaintx.firebaseapp.com",
+    databaseURL: "https://couponchaintx.firebaseio.com"
+  };
+  
+  firebase.initializeApp(config);
+  
+  var ref = firebase.database().ref();
+
+  
+// Firebase Admin
+ 
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./couponchaintx.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://couponchaintx.firebaseio.com"
 });
-*/
+ 
+
+// Get a database reference to our blog
+var db = admin.database();
+var ref = db.ref("server/saving-data/fireblog");
+ 
+
+
+
 
 
 
@@ -90,7 +111,7 @@ app.post('/getCoupon', function(req, res){
 
 
 
-port = 3000;
+
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
 
@@ -190,23 +211,8 @@ data.VendorAddress="vendorID";
 data.amount="2";
 
 AECOIN.addBlock(new Block(1,data));
- //svr 
-
-
-
-   //
-
-
-
-//Client
-
-function getCoupon(){//F3 create transaction
-
-
-
-}  
-//
-
+  //END Transaction
+  
 console.log('Blockchain valid? ' + AECOIN.isChainValid());
 
 console.log('Changing a block...');
