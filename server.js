@@ -21,7 +21,7 @@ var config = {
   var ref = firebase.database().ref();
 
   
-// Firebase Admin
+// Firebase Admin 
  
 var admin = require("firebase-admin");
 
@@ -35,13 +35,53 @@ admin.initializeApp({
 
 // Get a database reference to our blog
 var db = admin.database();
-var ref = db.ref("server/saving-data/fireblog");
+var ref = db.ref("server/saving-data/");
+var keyRef = ref.child("/userskey");
+
+ 
+
+function adduserKey(UserID,PublicKey,PrivateKey){
+    var  Ref = keyRef.child("/"+UserID);
+    Ref.set({
+        pk:PublicKey,
+        sk:PrivateKey
+      });
+}
+
+ 
+//FUNCTION getPublic Key
+let getuserPk =function(UID){
+    getUserPromise = new Promise (function(resolve,reject){
+
+    var  Ref = keyRef.child("/"+UID+"/pk");
+    Ref.once("value", function(snapshot) {
+        resolve(snapshot.val());
+         
+      });
+    });
+    return getUserPromise;
+}
  
 
 
 
+ 
+//FUNCTION getPrivate key
+let getuserSk =function(UID){
+    getuserSkPromise = new Promise (function(resolve,reject){
+
+    var  Ref = keyRef.child("/"+UID+"/sk");
+    Ref.once("value", function(snapshot) {
+        resolve(snapshot.val());
+      });
+    });
+    return getuserSkPromise;
+}
+ 
 
 
+ 
+//##########  END Firebase Function 
 
 //Express 
 var express = require('express');
@@ -222,3 +262,20 @@ console.log("Blockchain valid? " + AECOIN.isChainValid());
 
 console.log(AECOIN .getLatestHash());
  
+ 
+
+//get Pub Key
+/*
+getuserPk("baker").then(function(result) {
+    console.log(result) //will log results.
+ })
+ 
+*/
+
+//get  pri key
+/*
+getuserSk("baker").then(function(result) {
+    console.log(result) //will log results.
+ })
+ 
+*/
