@@ -132,7 +132,8 @@ app.use(bodyParser.json());
 app.get('/debug101', function(req, res){
     var ip = req.headers['x-forwarded-for'] ||
     req.connection.remoteAddress;
-    console.log(new Date()+' || GET /'+ip+" ")
+    console.log("["+ip.replace("::ffff:","")+svrts()+' ~] "GET /debug101.html:3000"')
+
     //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
     var html = fs.readFileSync('index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
@@ -142,13 +143,21 @@ app.get('/debug101', function(req, res){
 
 // User request the coupon
 app.post('/getCoupon', function(req, res){
-    console.log('getRequest from '+ req.headers['x-forwarded-for'] ||
-    req.connection.remoteAddress+ " ");
+
+
+
     auth = req.body.data.auth;
     vendor = req.body.data.VendorID;
     couponCode = req.body.data.couponCode;
  
-    console.log();
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+ 
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+couponCode+' by AUTH '+ auth+'"');
+//end notifiocation 
+ 
+ 
     
     //Vaildate done here 
         /*
@@ -166,8 +175,7 @@ app.post('/getCoupon', function(req, res){
 
 // vender Register Coupon
 app.post('/registercoupon', function(req, res){
-    console.log('getRequest from '+ req.headers['x-forwarded-for'] ||
-    req.connection.remoteAddress+ " ");
+ 
 
     // check digitalsignature
     /*
@@ -187,6 +195,15 @@ app.post('/registercoupon', function(req, res){
    let allowance =  req.body.data.allowance;
 
    
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Registered Coupon by '+ vendor+"/ desc: "+description+'"');
+//end notifiocation 
+
+
+
 
     // generatehash ID
     let couponCode = SHA256(JSON.stringify(description+vendor+timestamp+Expiredate+timestamp+allowance).toString());
@@ -347,4 +364,18 @@ function addDays(date, days) {
     return result;
   }
 
+ function svrts(){
  
+        var dt = new Date();
+        date = (dt.getDate()<10? "0"+dt.getDate():dt.getDate());
+        month = (dt.getMonth()+1<10? "0"+dt.getMonth()+1:dt.getMonth()+1);
+        min = (dt.getMinutes()<10? "0"+dt.getMinutes():dt.getMinutes());
+        sec = (dt.getSeconds()<10? "0"+dt.getSeconds():dt.getSeconds());
+        hour = (dt.getHours()<10? "0"+dt.getHours():dt.getHours());
+        ms = dt.getMilliseconds();
+        if(ms<10){"00"+ms;}else if(ms<100){"0"+ms;}
+
+        return " "+date+"-"+month+"-" + dt.getFullYear()+" "+hour+":"+min+":"+sec+";"+ms+"ms";
+ 
+
+ }
