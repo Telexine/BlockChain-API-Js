@@ -36,8 +36,8 @@ admin.initializeApp({
 // Get a database reference to our blog
 var db = admin.database();
 var ref = db.ref("server/saving-data/");
-var keyRef = ref.child("/userskey");
-
+let keyRef = ref.child("/userskey");
+let couponRef = ref.child("/couponcode");
  
 
 function adduserKey(UserID,PublicKey,PrivateKey){
@@ -63,9 +63,6 @@ let getuserPk =function(UID){
 }
  
 
-
-
- 
 //FUNCTION getPrivate key
 let getuserSk =function(UID){
     getuserSkPromise = new Promise (function(resolve,reject){
@@ -80,6 +77,19 @@ let getuserSk =function(UID){
  
 
 
+
+ 
+//FUNCTION register Coupon to firebase
+function registercoupon(couponCode,description,vendor,timestamp,Expiredate,allowance){
+    var  Ref = couponRef.child("/"+couponCode);
+    Ref.set({
+        Description:description,
+        VendorID:vendor,
+        CreateDate:timestamp,
+        Exp:Expiredate,
+        Allowance:allowance
+      });
+}
  
 //##########  END Firebase Function 
 
@@ -119,7 +129,7 @@ app.use(bodyParser.json());
 
 
 // Send  HTML page to client
-app.get('/getCoupon', function(req, res){
+app.get('/debug101', function(req, res){
     var ip = req.headers['x-forwarded-for'] ||
     req.connection.remoteAddress;
     console.log(new Date()+' || GET /'+ip+" ")
@@ -130,25 +140,71 @@ app.get('/getCoupon', function(req, res){
 });
 
 
-// Listener 
+// User request the coupon
 app.post('/getCoupon', function(req, res){
     console.log('getRequest from '+ req.headers['x-forwarded-for'] ||
     req.connection.remoteAddress+ " ");
     auth = req.body.data.auth;
     vendor = req.body.data.VendorID;
-    couponID = req.body.data.couponID;
+    couponCode = req.body.data.couponCode;
  
     console.log();
     
     //Vaildate done here 
-
-
+        /*
+        1. Check validate digital signature 
+        2. Count Coupon and check it's is still usable 
+        
+        
+        */
+    //End validate
 
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.end('thanks'+" " +req.body.data.couponID);
 });
 
 
+// vender Register Coupon
+app.post('/registercoupon', function(req, res){
+    console.log('getRequest from '+ req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress+ " ");
+
+    // check digitalsignature
+    /*
+    1. fetch vendor pubkey from firebase 
+    2. decrypt pubey to check signature that is valid 
+    */
+
+    //end checkdigitalsignture
+
+
+
+    //working
+   let description = req.body.data.description;
+   let vendor = req.body.data.VendorID;
+   let timestamp = Date.now();
+   let Expiredate = addDays(timestamp,req.body.data.Expiredate);
+   let allowance =  req.body.data.allowance;
+
+   
+
+    // generatehash ID
+    let couponCode = SHA256(JSON.stringify(description+vendor+timestamp+Expiredate+timestamp+allowance).toString());
+
+
+
+
+    //Put on firebase
+    registercoupon(couponCode,description,vendor,timestamp,Expiredate,allowance);
+
+ 
+    //Vaildate done here 
+
+ //End validate
+
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end('thanks'+" " +couponCode);
+});
 
 
 
@@ -279,3 +335,16 @@ getuserSk("baker").then(function(result) {
  })
  
 */
+ 
+
+
+
+// Main FUNCTION
+ 
+function addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+ 

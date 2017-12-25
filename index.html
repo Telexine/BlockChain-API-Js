@@ -1,16 +1,101 @@
 <html>
-    <body>
+
+<head>
+        <meta charset="utf-8"/>
+ </head> 
+        <body>
          
-            
-            <input type="submit" value="Submit" onclick="Send()" />
-         
-    
+            <div style="margin-left:auto;margin-top:200px">
+            <input type="submit" value="User Request Coupon" onclick="userRequstCoupon()" />
+            <input type="submit" value="Vendor Register Coupon" onclick="VendorRegisterCoupon()" />
+            </div>
         <script type="text/JavaScript">
 
-var promiseCount = 0;
-            
-function Send(){
-let myFirstPromise = new Promise((resolve, reject) => {
+let svrIP = "localhost"; //  172.31.17.115 for EC2 , 127.0.0.1 For local
+
+
+
+function  VendorRegisterCoupon() {
+    
+    let request = new Promise((resolve, reject) => {
+ 
+ console.log('begin');
+
+     // UC Vendor Register coupon
+         //chain   ?!@ This is only data that user know and have in transaction 
+         let Data;
+         // coupon ID generate  จาก hash ในฝั่ง Server
+         let VendorID="VID0001"; // rand
+         let description="Starbuck : ซื้อ 1 แถม 1 ทุกแก้ว"; // Promotion Coupon Description
+         let Expiredate = 160 ;   // Expdate  นับเป็นวัน  160 = 160 วัน -33 =  no expire date 
+         let allowance = 2000;  // จำนวนที่สามารถกดได้ 2000 =  2000 code 
+         //end chain 
+
+         Data =  {data:{
+            VendorID:VendorID,
+            description:description,
+            Expiredate:Expiredate,
+            allowance:allowance
+        }};
+
+         //encode 
+         var json_str = JSON.stringify(Data); //JSON.parse()
+
+         
+
+         console.log(json_str);
+
+       
+         //chain
+
+
+         var http = new XMLHttpRequest();
+
+        // var params = "text=stuff"; // data sender
+
+        var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+
+
+         
+         http.open("POST", "http://"+svrIP+":3000/registercoupon", true);
+ 
+         http.setRequestHeader("Content-Type", "application/json");
+
+ 
+         http.onreadystatechange = function() {
+             console.log('onreadystatechange');
+             if (http.readyState == 4 && http.status == 200) {
+                 alert(http.responseText);
+             }
+             else {
+                 console.log('readyState=' + http.readyState + ', status: ' + http.status);
+             }
+         }
+ 
+         console.log('sending...')
+         http.send(json_str);
+         console.log('end');
+
+
+ setTimeout(function(){
+   resolve("Success!"); // Yay! Everything went well!
+ }, 250);
+});
+
+request.then((successMessage) => {
+ // successMessage is whatever we passed in the resolve(...) function above.
+ // It doesn't have to be a string, but if it is only a succeed message, it probably will be.
+ console.log("Yay! " + successMessage);
+});
+
+
+
+}
+
+
+
+function userRequstCoupon(){ //  ผู้ใช้งานขอรหัสคูปอง
+let request = new Promise((resolve, reject) => {
  
     console.log('begin');
 
@@ -19,12 +104,12 @@ let myFirstPromise = new Promise((resolve, reject) => {
             let Data;
             let auth="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsk19ZUwLExrOC2Leu34w"; // fake
             let getCouponFromVendorID="CX0023"; // Vendor ID
-            let couponID ="G9w0BAQEFAAOCAQ8AMIIBCgKCAQE";   // Ref for Coupon which just an ID not contain any amount 
+            let couponID ="G9w0BAQEFAAOCAQ8AMIIBCgKCAQE"; // couponcode  // Ref for Coupon which just an ID not contain any amount 
             //end chain 
 
             Data =  {data:{auth:auth,
             VendorID:getCouponFromVendorID,
-            couponID:couponID}}
+            couponCode:couponID}}
         ;
 
             //encode 
@@ -46,7 +131,7 @@ let myFirstPromise = new Promise((resolve, reject) => {
  
  
             
-            http.open("POST", "http://172.31.17.115:3000/getCoupon", true);
+            http.open("POST", "http://"+svrIP+":3000/getCoupon", true);
     
             http.setRequestHeader("Content-Type", "application/json");
    
@@ -71,7 +156,7 @@ let myFirstPromise = new Promise((resolve, reject) => {
     }, 250);
   });
   
-  myFirstPromise.then((successMessage) => {
+  request.then((successMessage) => {
     // successMessage is whatever we passed in the resolve(...) function above.
     // It doesn't have to be a string, but if it is only a succeed message, it probably will be.
     console.log("Yay! " + successMessage);
