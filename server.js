@@ -239,7 +239,7 @@ const  TX = { //Transaction Type
 };
 
 class transaction{ // inside Data of class Block
-
+   
     constructor(TX,signature,VendorAddress,amount){
         this.TX = TX;
         this.signature = signature;// client pubkey
@@ -264,6 +264,46 @@ class Block {
   }
 
   
+}
+
+class pool { // put blockchain inside it  *** this is for svr 
+   
+    constructor() {
+        const  State = { //Transaction Type
+            Valid : {value:1},
+            Invalid : {value:0}
+
+        };
+        this.poolsize = 0;
+        this.status = State.Valid;
+        this.blockchain = [][]; // 1st array is init block  second is sub block 
+
+    }
+
+    getPoolsize(){
+        return  this.poolsize;
+    }
+
+    getStatus(){
+        return this.status;
+    }   
+
+    pushBox(Blockchain){
+
+        // check source(sig) 
+
+        // if it all done then do
+        
+       
+        
+          // get resource from vendor firebase 
+          // if get from vendor (init pool)
+          // create frist block  
+         // this.blockchain[].push(Blockchain);   this.initchain(vendorId)
+        // if it transfer or used push to that chain this.pushchain(vendorId)
+    }
+
+
 }
 
 
@@ -323,7 +363,7 @@ data.signature="me";
 data.VendorAddress="vendorID";
 data.amount="2";
 
-AECOIN.addBlock(new Block(1,data));
+AECOIN.addBlock(new Block(1,data)); // creat box 
   //END Transaction
   
 console.log('Blockchain valid? ' + AECOIN.isChainValid());
@@ -335,7 +375,10 @@ console.log("Blockchain valid? " + AECOIN.isChainValid());
 
 console.log(AECOIN .getLatestHash());
  
+ let Pool = new pool();
  
+ console.log(Pool.getStatus());
+ console.log(Pool.getPoolsize());
 
 //get Pub Key
 /*
@@ -364,7 +407,7 @@ function addDays(date, days) {
     return result;
   }
 
- function svrts(){
+ function svrts(){ // timestamp 
  
         var dt = new Date();
         date = (dt.getDate()<10? "0"+dt.getDate():dt.getDate());
