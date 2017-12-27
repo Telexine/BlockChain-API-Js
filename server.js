@@ -75,7 +75,24 @@ let getuserSk =function(UID){
     return getuserSkPromise;
 }
  
+//FUNCTION getCoupondata
+let getCoupon =function(couponID){
+    getCouponPromise = new Promise (function(resolve,reject){
 
+    var  Ref = couponRef.child("/"+couponID);
+    Ref.once("value", function(snapshot) {
+        data = snapshot.val();
+        if(data==null){
+            console.log("code "+couponID+ " not found.");
+            return;
+        }
+        resolve(snapshot.val());
+      });
+   
+    });
+    return getCouponPromise;
+}
+ 
 
 
  
@@ -238,12 +255,19 @@ const  TX = { //Transaction Type
     DELETE : {value:2},
 };
 
+const  BlockTX ={
+    REQUESTFROMVENDOR : {value:0},
+    TRANSFER : {value:1},
+    REDEEM :  {value:2}
+}
+
 class transaction{ // inside Data of class Block
    
-    constructor(TX,signature,VendorAddress,amount){
+    constructor(TX,signature,VendorAddress,amount,couponCode){
         this.TX = TX;
         this.signature = signature;// client pubkey
         this.VendorAddress = VendorAddress;
+        this.couponCode = couponCode
         this.amount = amount;
 
     }
@@ -257,6 +281,7 @@ class Block {
     this.timestamp = Date.now();
     this.data = data;
     this.hash = this.calculateHash();
+   
   }
 
   calculateHash() {
@@ -276,7 +301,9 @@ class pool { // put blockchain inside it  *** this is for svr
         };
         this.poolsize = 0;
         this.status = State.Valid;
-        this.blockchain = [][]; // 1st array is init block  second is sub block 
+        this.blockchain = [,]; // 1st array is init block  second is sub block 
+        // blockchain is the main  chain data
+        this.temp = [,]; // for store temp block, wait for validation and then commit to blockchain
 
     }
 
@@ -288,28 +315,60 @@ class pool { // put blockchain inside it  *** this is for svr
         return this.status;
     }   
 
-    pushBox(Blockchain){
+    pushBox(requestedBlock ){
+
+        
+
+        // irtirative each block 
+ 
+       for(let i = 0;i<requestedBlock.length();i++){
+            console.log("cs "+requestedBlock.getBlock(i));
+
+           
 
         // check source(sig) 
+        console.log(requestedBlock);
+        // get resource from coupon firebase 
+        getCoupon("40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e")
+        .then(function(fetch) {
+            console.log(fetch);
 
-        // if it all done then do
-        
-       
-        
-          // get resource from vendor firebase 
-          // if get from vendor (init pool)
+             console.log(requestedBlock.getBlockTransactionType());
+         // if get from vendor (init pool)
           // create frist block  
          // this.blockchain[].push(Blockchain);   this.initchain(vendorId)
         // if it transfer or used push to that chain this.pushchain(vendorId)
+
+
+
+            
+         })
+
+  
+// console.log(Blockchain.getCouponID(i));
+ 
+
+
+
+
+
+       }
+ 
+        
+        
     }
+
+
+          
 
 
 }
 
 
 class Blockchain{  
-    constructor() {
+    constructor(BlockTX) {
         this.chain = [this.createGenesisBlock()];
+        this.BlockTX = BlockTX;
     }
 
     createGenesisBlock() {
@@ -320,6 +379,10 @@ class Blockchain{
         return this.chain[this.chain.length - 1];
     }
 
+    length(){ // count chain
+        return this.chain.length;
+
+    }
     addBlock(newBlock) {
         newBlock.previousHash = this.getLatestBlock().hash;
         newBlock.hash = newBlock.calculateHash();
@@ -329,8 +392,23 @@ class Blockchain{
     getLatestHash(){
         return this.getLatestBlock().hash;
     }
+    getBlockTransactionType(){
+        return this.BlockTX;
+    }
+    getInitBlock(){ // get first Block
+        return this.chain[0];
+    }
+
+    getCouponID(index){
+        return this.chain[index].data.couponCode;
+    }
+
+    getTransaction(index){     return this.chain[index].data;}
 
 
+    getBlock(index){ // get   Block
+        return this.chain[index];
+    }
 
     isChainValid() {
         for (let i = 1; i < this.chain.length; i++){
@@ -353,20 +431,38 @@ class Blockchain{
 
 
 
-let AECOIN = new Blockchain();
+let AECOIN = new Blockchain(BlockTX.REQUESTFROMVENDOR);
 
 
-// new transaction
+// new transaction ========================================
 let data = new transaction();
 data.TX=TX.CREATE;
 data.signature="me";
-data.VendorAddress="vendorID";
-data.amount="2";
+data.couponCode="40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e";
+data.amount="1";
 
-AECOIN.addBlock(new Block(1,data)); // creat box 
-  //END Transaction
-  
-console.log('Blockchain valid? ' + AECOIN.isChainValid());
+AECOIN.addBlock(new Block(1,BlockTX.REQUESTFROMVENDOR,data)); // creat box 
+  //END Transaction ==========================================
+
+
+  let Pool = new pool();
+ 
+  console.log(Pool.getStatus());
+  console.log(Pool.getPoolsize());
+
+//console.log(AECOIN.getBlock(1));
+Pool.pushBox(AECOIN);
+
+  //chk
+
+
+
+/*
+  getCoupon("40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e").then(function(result) {
+    console.log(result) //will log results.
+ })
+*/
+/*console.log('Blockchain valid? ' + AECOIN.isChainValid());
 
 console.log('Changing a block...');
 AECOIN.chain[1].data = { amount: 100 };
@@ -374,11 +470,8 @@ AECOIN.chain[1].data = { amount: 100 };
 console.log("Blockchain valid? " + AECOIN.isChainValid());
 
 console.log(AECOIN .getLatestHash());
- 
- let Pool = new pool();
- 
- console.log(Pool.getStatus());
- console.log(Pool.getPoolsize());
+ */
+
 
 //get Pub Key
 /*
