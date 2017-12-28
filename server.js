@@ -248,7 +248,7 @@ console.log('Listening at http://localhost:' + port)
 
 //end Express 
 
-
+// BlockChain ==========================================================
 const  TX = { //Transaction Type
     CREATE : {value:0},
     UPDATE : {value:1},
@@ -261,11 +261,12 @@ const  BlockTX ={
     REDEEM :  {value:2}
 }
 
-class transaction{ // inside Data of class Block
+class transaction{ // Merged with Block 
    
-    constructor(TX,signature,VendorAddress,amount,couponCode){
+    constructor(TX,signature,UserID,VendorAddress,amount,couponCode){
         this.TX = TX;
         this.signature = signature;// client pubkey
+        this.userID = UserID;
         this.VendorAddress = VendorAddress;
         this.couponCode = couponCode
         this.amount = amount;
@@ -275,14 +276,26 @@ class transaction{ // inside Data of class Block
 }
 
 class Block {
-  constructor(index, data, previousHash = '') {
+  constructor(index, previousHash = '',TX,signature,UserID,VendorAddress,amount,couponCode) {
     this.index = index;
     this.previousHash = previousHash;
     this.timestamp = Date.now();
-    this.data = data;
     this.hash = this.calculateHash();
    
+    // transaction 
+
+    this.TX = TX;
+    this.signature = signature;// client pubkey
+    this.userID = UserID;
+    this.VendorAddress = VendorAddress;
+    this.couponCode = couponCode
+    this.amount = amount;
   }
+
+  getPreviouseHash(){
+
+  }
+
 
   calculateHash() {
       return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
@@ -322,20 +335,28 @@ class pool { // put blockchain inside it  *** this is for svr
         // irtirative each block 
  
        for(let i = 0;i<requestedBlock.length();i++){
-            console.log("cs "+requestedBlock.getBlock(i));
-
+            //console.log("cs " +i +" no. "+requestedBlock.getBlock(i));
+ 
            
+           // let Transaction = requestedBlock.getTransaction(i);
 
+           // console.log(Transaction.couponCode);
         // check source(sig) 
-        console.log(requestedBlock);
+       //console.log(requestedBlock.data);
         // get resource from coupon firebase 
         getCoupon("40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e")
         .then(function(fetch) {
-            console.log(fetch);
-
-             console.log(requestedBlock.getBlockTransactionType());
+           // console.log(fetch);
+            //console.log("tx = ");
+             //console.log(requestedBlock.getBlockTransactionType());
+             
          // if get from vendor (init pool)
           // create frist block  
+            if(requestedBlock.getBlockTransactionType()==BlockTX.REQUESTFROMVENDOR){
+
+
+            }
+
          // this.blockchain[].push(Blockchain);   this.initchain(vendorId)
         // if it transfer or used push to that chain this.pushchain(vendorId)
 
@@ -372,9 +393,9 @@ class Blockchain{
     }
 
     createGenesisBlock() {
-        return new Block(0, new transaction(TX.CREATE,"signature","VendorAdd",30), "");
+        return new Block(0,'' ,TX.CREATE,"signature",'userID',"VendorID",0,"couponCode");
     }
-
+    
     getLatestBlock() {
         return this.chain[this.chain.length - 1];
     }
@@ -399,11 +420,11 @@ class Blockchain{
         return this.chain[0];
     }
 
-    getCouponID(index){
+    getCouponCode(index){  // broken  
         return this.chain[index].data.couponCode;
     }
 
-    getTransaction(index){     return this.chain[index].data;}
+    getTransaction(index){return this.chain[index].data;}
 
 
     getBlock(index){ // get   Block
@@ -429,19 +450,16 @@ class Blockchain{
 }
 
 
-
+// End BlockChain ==========================================================
 
 let AECOIN = new Blockchain(BlockTX.REQUESTFROMVENDOR);
 
 
 // new transaction ========================================
-let data = new transaction();
-data.TX=TX.CREATE;
-data.signature="me";
-data.couponCode="40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e";
-data.amount="1";
-
-AECOIN.addBlock(new Block(1,BlockTX.REQUESTFROMVENDOR,data)); // creat box 
+ 
+AECOIN.addBlock(new Block(1,AECOIN.getLatestHash(),TX.CREATE,"me","id1","Vd001",1,"40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e")); // creat box 
+  
+ 
   //END Transaction ==========================================
 
 
@@ -454,7 +472,7 @@ AECOIN.addBlock(new Block(1,BlockTX.REQUESTFROMVENDOR,data)); // creat box
 Pool.pushBox(AECOIN);
 
   //chk
-
+  console.log(Pool);
 
 
 /*
