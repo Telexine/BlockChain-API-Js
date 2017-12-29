@@ -1,0 +1,18 @@
+@charset "utf-8";
+/* CSS Document */
+
+.center-div{
+	
+width: 250px;
+margin: 20px auto;
+}
+.img_container img{
+  height: 100px;
+  width: 200px;
+  margin: auto auto;
+  display: block;
+} 
+#headerHeight{
+	//height: 100px;
+	background-color: #58FF6B;
+}
