@@ -343,6 +343,11 @@ class pool { // put blockchain inside it  *** this is for svr
     pushBox(requestedBlock ){
 
         
+//*** BlockTX tracsactiontype   BUG
+
+
+
+
 
         // irtirative each block 
         /*/
@@ -362,16 +367,44 @@ class pool { // put blockchain inside it  *** this is for svr
             //console.log("cs " +i +" no. "+requestedBlock.getBlock(i));
  
            
-             let coupon = requestedBlock.getCouponCode(i);
+             let coupon = requestedBlock.getCouponCode(i); //40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e
    
-                
+      
         // if get from vendor (init pool)
         // create frist block pool 
           if(requestedBlock.getBlockTransactionType()==BlockTX.REQUESTFROMVENDOR){
 
             // chk allowance 
-            //then add to pool
-            this.pool[this.poolsize]= (requestedBlock.getBlock(i));this.poolsize++;
+            let fbaseCouponData;
+            let thisBlock= requestedBlock.getBlock(i);
+            let amount = requestedBlock.getBlock(i).amount;
+            let beforeamount ;
+            let thisPool = this.pool;
+            let thisPoolsize= this.poolsize;
+            console.log(this.poolsize);
+            this.pool[this.poolsize]=thisBlock;
+            console.log("aa");
+
+            getCoupon(coupon)
+            .then(function(fetch) {
+                fbaseCouponData = fetch;
+                beforeamount = fbaseCouponData.Allowance;
+                
+             }).then(function(res){
+                     
+                    if(beforeamount>amount){
+                             //then add to pool
+                    thisPool[thisPoolsize++]=thisBlock;
+   
+                    couponRef = ref.child("/couponcode/"+coupon);
+       
+                        couponRef.update({
+                            Allowance:(beforeamount-amount)
+                          })
+                        }
+             });
+
+           //  console.log(this.poolsize);
             
             //do firebase decreasc allowance 
 
@@ -428,7 +461,7 @@ class pool { // put blockchain inside it  *** this is for svr
 
        }
  
-       console.log( this.pool[0][1] );
+       //console.log( this.pool[0][1] );
         
     }
 
