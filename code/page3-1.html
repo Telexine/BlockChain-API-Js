@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" type="text/css" href="css.css">
+<script src="fb-login.js"></script>
+
+<link rel="stylesheet" href="material.indigo-pink.min.css">
+<script defer src="material.min.js"></script>
+<script src = "engine.js"></script>
+
+</head>
+
+<body>
+<!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header" id="headerHeight">
+    <div class="mdl-layout__header-row" id="layout_header_row">
+      <!-- Title -->
+      <span class="mdl-layout-title"><div id="img-fb"></div></span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" id="profile"href=""></a><a id="logout" href="#" onclick="logout()">Logout</a>
+<fb:login-button
+              id="fb-btn"
+              scope="public_profile,email,user_birthday,user_location,user_posts"
+              onlogin="checkLoginState();">
+</fb:login-button>
+      </nav>
+    </div>
+  </header>
+ 
+  <main >
+    <div class="page-content" style="padding-top: 10px;">
+    	
+    <div class="center-div img_container"> <!--for center--> 
+		<button onclick="gencode()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="width:250px; height:100px;font-size:20px;background-color:red;"><span id="coupon">JAV123456789</span></button> <!-- receive coupon -->
+	 	
+		</div>
+ 	<div align="center">
+		
+	<button onclick="#" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">use</button>
+	
+	<button onclick="#" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">share</button>
+		
+		
+		</div>
+    	
+    </div>
+  </main>
+<script>
+  function gencode(){
+	document.getElementById("coupon").innerHTML = "JAV"+Math.floor((Math.random() * 100000000) + 1);
+}
+</script>
+</div>
+	
+	
+	
+</body>
+</html>
