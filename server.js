@@ -1,4 +1,6 @@
  
+
+ 
 const SHA256 = require("crypto-js/sha256");
 const port = 3000;
 
@@ -143,7 +145,8 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
  
-
+app.use(express.static('public'));
+ 
 
 // Send  HTML page to client
 app.get('/debug101', function(req, res){
@@ -153,6 +156,17 @@ app.get('/debug101', function(req, res){
 
     //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
     var html = fs.readFileSync('index.html');
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end(html);
+});
+// Send  HTML page to client
+app.get('/', function(req, res){
+    var ip = req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress;
+    console.log("["+ip.replace("::ffff:","")+svrts()+' ~] "GET /code/index.html"')
+
+    //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
+    var html = fs.readFileSync('code/index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(html);
 });
@@ -328,62 +342,45 @@ class pool { // put blockchain inside it  *** this is for svr
         this.status = State.Valid;
         this.pool = []; // 1st array is init block  second is sub block 
         // blockchain is the main  chain data
-        this.temp = [,]; // for store temp block, wait for validation and then commit to blockchain
+        this.branch = []; // for store temp block, wait for validation and then commit to blockchain
 
     }
 
-    getPoolsize(){
+    size(){
         return  this.poolsize;
     }
-
+    addPool(){
+        this.poolsize++;
+    }
     getStatus(){
         return this.status;
     }   
 
     pushBox(requestedBlock ){
-
-        
-//*** BlockTX tracsactiontype   BUG
-
-
-
-
-
-        // irtirative each block 
-        /*/
-        this.pool.push([]);
-        this.pool[0].push([1]);
-        this.pool[0].push([2]);
-        this.pool.push([]);
-        this.pool[1].push([1]);
-        this.pool[1].push([2]);
-
-
-        console.log( this.pool[0][0]);
-        
-        */
+ 
        // console.log(requestedBlock);
        for(let i = 1;i<requestedBlock.length();i++){
-            //console.log("cs " +i +" no. "+requestedBlock.getBlock(i));
- 
-           
-             let coupon = requestedBlock.getCouponCode(i); //40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e
-   
       
+                // chk allowance 
+                let fbaseCouponData;
+     
+                let beforeamount ;
+                let thisPool = this.pool;
+                let thisPoolsize= this.poolsize;
+                  let coupon = requestedBlock.getCouponCode(i); //40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e
+                  let thisBlock= requestedBlock.getBlock(i);
+              let amount = requestedBlock.getBlock(i).amount;
+        
         // if get from vendor (init pool)
         // create frist block pool 
-          if(requestedBlock.getBlockTransactionType()==BlockTX.REQUESTFROMVENDOR){
-
-            // chk allowance 
-            let fbaseCouponData;
-            let thisBlock= requestedBlock.getBlock(i);
-            let amount = requestedBlock.getBlock(i).amount;
-            let beforeamount ;
-            let thisPool = this.pool;
-            let thisPoolsize= this.poolsize;
-            console.log(this.poolsize);
+             let thisBlockTransacType= requestedBlock.getBlockTransactionType().value;  
+          if(thisBlockTransacType==BlockTX.REQUESTFROMVENDOR.value){ // BlockTX.REQUESTFROMVENDOR
+  
+       
+            
+            //console.log(this.poolsize);
             this.pool[this.poolsize]=thisBlock;
-            console.log("aa");
+            
 
             getCoupon(coupon)
             .then(function(fetch) {
@@ -391,77 +388,53 @@ class pool { // put blockchain inside it  *** this is for svr
                 beforeamount = fbaseCouponData.Allowance;
                 
              }).then(function(res){
-                     
+                     // decrease allowance
                     if(beforeamount>amount){
-                             //then add to pool
-                    thisPool[thisPoolsize++]=thisBlock;
-   
+                    //then add to pool
+                   
+                    
                     couponRef = ref.child("/couponcode/"+coupon);
-       
+                        
                         couponRef.update({
                             Allowance:(beforeamount-amount)
                           })
-                        }
+                        }else{return;};
+             }).then(function(res){
+                thisPool[thisPoolsize]=thisBlock;
+               
              });
-
-           //  console.log(this.poolsize);
+              this.poolsize++;
+            console.log(this.poolsize);
             
-            //do firebase decreasc allowance 
+           
+ 
+         
 
-
-
-
-          }else if(requestedBlock.getBlockTransactionType()==BlockTX.TRANSFER){
+          }else if(thisBlockTransacType==BlockTX.TRANSFER.value){ //BlockTX.TRANSFER
  
       
             for(let j = 0;j<this.poolsize;j++){
                       //find that coupon code in pool by hash in this.pool[j].hash
-                    /*
-                    
-                    if(this.pool[j].hash== hash){
-                        //push in that chain
-                        this.pool[j].cc  =chain 
+
+                     
+                    if(this.pool[j].couponCode== coupon){// found the init block
+                         // generate new hash
+                        thisBlock.previousHash = this.pool[j].hash;
+                        thisBlock.hash = thisBlock.calculateHash();
+                 
+                        this.pool.push(thisBlock);  // push to pool
+               
                     }
-
-
-                */
-             }
-            //do firebase decreasc allowance 
-          }
-          
-
-
-        // check source(sig) 
-       //console.log(requestedBlock.data);
-        // get resource from coupon firebase 
-
-        //getCoupon(coupon)
-        getCoupon("40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e")
-        .then(function(fetch) {
-           // console.log(fetch);
-            //console.log("tx = ");
-             //console.log(requestedBlock.getBlockTransactionType());
-             
-
-       
-        // if it transfer or used push to that chain this.pushchain(vendorId)
-
-
-            
-            
-         })
-  
-
-
  
-
-
-
-
-
+              
+             }
+      
+          }
+           
+    
        }
  
-       //console.log( this.pool[0][1] );
+ 
         
     }
 
@@ -473,9 +446,9 @@ class pool { // put blockchain inside it  *** this is for svr
 
 
 class Blockchain{  
-    constructor(BlockTX) {
+    constructor(blockTX) {
         this.chain = [this.createGenesisBlock()];
-        this.BlockTX = BlockTX;
+        this.BlockTX = blockTX;
     }
 
     createGenesisBlock() {
@@ -554,11 +527,20 @@ AECOIN.addBlock(new Block(1,AECOIN.getLatestHash(),TX.CREATE,"me","id1","Vd001",
 
   let Pool = new pool();
  
-  console.log(Pool.getStatus());
-  console.log(Pool.getPoolsize());
+  console.log("Pool stat  " +Pool.getStatus().value);
+  console.log("Pool Size "+ Pool.size());
 
 //console.log(AECOIN.getBlock(1));
 Pool.pushBox(AECOIN);
+
+let transf = new Blockchain(BlockTX.TRANSFER);
+transf.addBlock(new Block(1,transf.getLatestHash(),TX.CREATE,"me","id1","Vd001",1,"40a59c1afb3e05eaec72928b1d70777678678884e56ca963b0277d15e5c4f34e")); // creat box 
+Pool.pushBox(transf);
+
+
+
+console.log("Pool stat  " +Pool.getStatus());
+console.log("Pool Size "+ Pool.size());
 
   //chk
   //console.log(Pool);
