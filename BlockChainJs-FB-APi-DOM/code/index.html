@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" type="text/css" href="css.css">
+
+<link rel="stylesheet" href="material.indigo-pink.min.css">
+<script defer src="material.min.js"></script>
+<script src = "engine.js"></script>
+<script src="fb-login.js"></script>
+<script src="coupon.js"></script>
+</head>
+
+
+<body>
+<!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header" id="headerHeight">
+    <div class="mdl-layout__header-row" id="layout_header_row">
+      <!-- Title -->
+      <span class="mdl-layout-title"><div id="img-fb"></div></span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" id="profile"href=""></a> <a id="logout" href="#" onclick="logout()">Logout</a>
+<fb:login-button
+              id="fb-btn"
+              scope="public_profile,email,user_birthday,user_location,user_posts"
+              onlogin="checkLoginState();">
+</fb:login-button>
+      </nav>
+    </div>
+  </header>
+ 
+  <main class="mdl-layout__content">
+    <div class="page-content" style="padding-top: 10px;">
+    	
+    <div id ="content1" class="center-div img_container"> <!--for center--> 
+		<img src="src/kfc.jpg" style="background-color: black;"> <!--logo deal--> <p></p>
+ 
+	 	<button id="get_kfc_id" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="margin-left:62px;" onClick="btnkfc()">Get coupon</button> <!-- receive coupon --> <p></p>
+	 			
+	 		
+	 	</div>
+ 		<p></p>
+ 	<div id ="content2" class="center-div img_container"><!--for center--> 
+		<img src="src/starbuck.jpg" style="background-color: black;"><!-- logo deal--><p></p>
+		<button id="get_star_id" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="margin-left:62px;" onClick="btnstar()" >Get coupon</button> <!-- receive coupon --> <p></p>
+		
+		
+		
+		</div>
+   
+   	
+    	
+    </div>
+  </main>
+</div>
+	
+	
+	
+</body>
+</html>
