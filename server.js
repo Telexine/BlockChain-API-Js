@@ -1,8 +1,9 @@
  
-
  
 const SHA256 = require("crypto-js/sha256");
 const port = 3000;
+
+const jwt = require('jsonwebtoken');//wee-auth
 
 //https://github.com/SavjeeTutorials/SavjeeCoin
 json = require('json-simple');
@@ -171,6 +172,41 @@ app.get('/', function(req, res){
     res.end(html);
 });
 
+// fb front ->
+
+// wee authen
+app.post('/login', (req, res) => {
+    // Mock user
+
+    const user = JSON.stringify(req.body) ;
+    console.log(req.body.id);
+
+
+    // แยกส่วน body
+    //Token = req.body.data.Token;
+
+    /*
+    1. search in db if exist 
+       - exist is login
+       - else create new user
+    */
+
+
+
+
+
+    /*jwt.sign({user}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
+      res.json({
+        token
+      });
+     
+    }); */
+
+  });
+// token // name  fb 
+ 
+
+  
 
 // User request the coupon
 app.post('/getCoupon', function(req, res){
