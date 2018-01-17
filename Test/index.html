@@ -1,0 +1,85 @@
+<html>
+    <body>
+         
+            
+            <input type="submit" value="Submit" onclick="Send()" />
+         
+    
+        <script type="text/JavaScript">
+
+var promiseCount = 0;
+            
+function Send(){
+let myFirstPromise = new Promise((resolve, reject) => {
+ 
+    console.log('begin');
+
+        // UC get Coupon 
+            //chain   ?!@ This is only data that user know and have in transaction 
+            let Data;
+            let auth="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsk19ZUwLExrOC2Leu34w"; // fake
+            let getCouponFromVendorID="CX0023"; // Vendor ID
+            let couponID ="G9w0BAQEFAAOCAQ8AMIIBCgKCAQE";   // Ref for Coupon which just an ID not contain any amount 
+            //end chain 
+
+            Data =  {data:{auth:auth,
+            VendorID:getCouponFromVendorID,
+            couponID:couponID}}
+        ;
+
+            //encode 
+            var json_str = JSON.stringify(Data); //JSON.parse()
+  
+            
+
+            console.log(json_str);
+
+          
+            //chain
+
+
+            var http = new XMLHttpRequest();
+
+           // var params = "text=stuff"; // data sender
+
+           var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+ 
+ 
+            
+            http.open("POST", "http://localhost:3000/getCoupon", true);
+    
+            http.setRequestHeader("Content-Type", "application/json");
+   
+    
+            http.onreadystatechange = function() {
+                console.log('onreadystatechange');
+                if (http.readyState == 4 && http.status == 200) {
+                    alert(http.responseText);
+                }
+                else {
+                    console.log('readyState=' + http.readyState + ', status: ' + http.status);
+                }
+            }
+    
+            console.log('sending...')
+            http.send(json_str);
+            console.log('end');
+
+
+    setTimeout(function(){
+      resolve("Success!"); // Yay! Everything went well!
+    }, 250);
+  });
+  
+  myFirstPromise.then((successMessage) => {
+    // successMessage is whatever we passed in the resolve(...) function above.
+    // It doesn't have to be a string, but if it is only a succeed message, it probably will be.
+    console.log("Yay! " + successMessage);
+  });
+}
+
+           
+        </script>
+    
+    </body>
+    </html>
