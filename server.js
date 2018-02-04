@@ -43,13 +43,22 @@ let keyRef = ref.child("/userskey");
 let couponRef = ref.child("/couponcode");
  
 
-function adduserKey(UserID,PublicKey,PrivateKey){
+function adduserKey(UserID,PublicKey,PrivateKey){//deprecate
     var  Ref = keyRef.child("/"+UserID);
     Ref.set({
         pk:PublicKey,
         sk:PrivateKey
       });
 }
+
+function CreateUser(Token,Username){
+    var  Ref = keyRef.child("/"+Token);
+    Ref.set({
+        username:Username
+      });
+}
+
+
 
  
 //FUNCTION getPublic Key
@@ -64,7 +73,19 @@ let getuserPk =function(UID){
     });
     return getUserPromise;
 }
- 
+
+//FUNCTION getToken Key
+let getToken =function(UID){
+    getTokenPromise = new Promise (function(resolve,reject){
+
+    var  Ref = keyRef.child("/"+UID+"/token");
+    Ref.once("value", function(snapshot) {
+        resolve(snapshot.val());
+
+      });
+    });
+    return getTokenPromise;
+}
 
 //FUNCTION getPrivate key
 let getuserSk =function(UID){
@@ -178,10 +199,11 @@ app.get('/', function(req, res){
 app.post('/login', (req, res) => {
     // Mock user
 
-    const user = JSON.stringify(req.body) ;
-    console.log(req.body.id);
+     
+ 
 
-
+    
+   
     // แยกส่วน body
     //Token = req.body.data.Token;
 
@@ -191,9 +213,21 @@ app.post('/login', (req, res) => {
        - else create new user
     */
 
+    token = req.body.data.token;
+    username= req.body.data.username;
+    getToken(token).then(function(result) {
+        console.log(result) //will log results.
+        if(result){//exist
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('Logged');
+        }else{//non-exist
 
+            CreateUser(token,username);
 
-
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('Created new User');
+        }
+     })
 
     /*jwt.sign({user}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
       res.json({
@@ -577,7 +611,9 @@ Pool.pushBox(transf);
 
 console.log("Pool stat  " +Pool.getStatus());
 console.log("Pool Size "+ Pool.size());
-
+Pool.pushBox(transf);
+Pool.pushBox(transf);
+console.log(Pool);
   //chk
   //console.log(Pool);
 

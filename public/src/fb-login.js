@@ -21,12 +21,27 @@
            console.log('Logged in and authenticated');
       
            // LOGIN Complete  Tae Added send req to svr
-            post('/login', {token: response.authResponse.accessToken});
-            console.log(response.accessToken);
-          
-            //
+           
+     
+            var accessToken = response.authResponse.accessToken; 
+            FB.api('/me?fields=name', function(response){
 
+            
+              if(response && !response.error){
+                //console.log(response);
+                let profile = `
+                ${response.name}`;
+                let ss= {
+                  token: accessToken,
+                  username: profile
+                   };
+                  post('/login', ss);  //ERROR WEE
+              }
+      
+              });
 
+            
+            
            setElements(true);
            testAPI();
          } else {
