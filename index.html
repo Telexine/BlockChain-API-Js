@@ -8,11 +8,12 @@
             <div style="margin-left:auto;margin-top:200px">
             <input type="submit" value="User Request Coupon" onclick="userRequstCoupon()" />
             <input type="submit" value="Vendor Register Coupon" onclick="VendorRegisterCoupon()" />
+            <input type="submit" value="USE the Coupon" onclick="useCoupon()" />
             </div>
         <script type="text/JavaScript">
 
-let svrIP = "ec2-52-38-135-223.us-west-2.compute.amazonaws.com"; //  "ec2-52-38-135-223.us-west-2.compute.amazonaws.com" for EC2 , "localhost" For local
-
+//let svrIP = "ec2-52-38-135-223.us-west-2.compute.amazonaws.com"; //  "ec2-52-38-135-223.us-west-2.compute.amazonaws.com" for EC2 , "localhost" For local
+svrIP = "localhost";
 
 
 function  VendorRegisterCoupon() {
@@ -102,19 +103,19 @@ let request = new Promise((resolve, reject) => {
         // UC get Coupon 
             //chain   ?!@ This is only data that user know and have in transaction 
             let Data;
-            let auth="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsk19ZUwLExrOC2Leu34w"; // fake
+            let Token="test"; // fake
             let getCouponFromVendorID="CX0023"; // Vendor ID
-            let couponID ="G9w0BAQEFAAOCAQ8AMIIBCgKCAQE"; // couponcode  // Ref for Coupon which just an ID not contain any amount 
+            let couponID ="2555723a5b44219507867305049ee859dcea9cca34265d0f3fc3b9596e32dd9b"; // couponcode  // Ref for Coupon which just an ID not contain any amount 
             //end chain 
 
-            Data =  {data:{auth:auth,
+            Data =  {data:{token:Token,
             VendorID:getCouponFromVendorID,
             couponCode:couponID}}
         ;
 
             //encode 
             var json_str = JSON.stringify(Data); //JSON.parse()
-  
+            
             
 
             console.log(json_str);
@@ -132,7 +133,7 @@ let request = new Promise((resolve, reject) => {
  
             
             http.open("POST", "http://"+svrIP+":3000/getCoupon", true);
-    
+     
             http.setRequestHeader("Content-Type", "application/json");
    
     
@@ -163,6 +164,79 @@ let request = new Promise((resolve, reject) => {
   });
 }
 
+
+
+
+
+
+function useCoupon(){ //  ใช้รหัสคูปอง
+let request = new Promise((resolve, reject) => {
+ 
+    console.log('begin');
+
+        // UC get Coupon 
+            //chain   ?!@ This is only data that user know and have in transaction 
+            let Data;
+            let Token="test"; // fake
+            let CouponID ="2555723a5b44219507867305049ee859dcea9cca34265d0f3fc3b9596e32dd9b"; // couponcode  // Ref for Coupon which just an ID not contain any amount 
+            let Allowance=1; // fake
+            //end chain 
+
+            Data =  {data:{token:Token,
+                allowance:Allowance,
+            couponCode:CouponID}}
+        ;
+
+            //encode 
+            var json_str = JSON.stringify(Data); //JSON.parse()
+            
+            
+
+            console.log(json_str);
+
+          
+            //chain
+
+
+            var http = new XMLHttpRequest();
+
+           // var params = "text=stuff"; // data sender
+
+           var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+ 
+ 
+            
+            http.open("POST", "http://"+svrIP+":3000/usecoupon", true);
+     
+            http.setRequestHeader("Content-Type", "application/json");
+   
+    
+            http.onreadystatechange = function() {
+                console.log('onreadystatechange');
+                if (http.readyState == 4 && http.status == 200) {
+                    alert(http.responseText);
+                }
+                else {
+                    console.log('readyState=' + http.readyState + ', status: ' + http.status);
+                }
+            }
+    
+            console.log('sending...')
+            http.send(json_str);
+            console.log('end');
+
+
+    setTimeout(function(){
+      resolve("Success!"); // Yay! Everything went well!
+    }, 250);
+  });
+  
+  request.then((successMessage) => {
+    // successMessage is whatever we passed in the resolve(...) function above.
+    // It doesn't have to be a string, but if it is only a succeed message, it probably will be.
+    console.log("Yay! " + successMessage);
+  });
+}
            
         </script>
     

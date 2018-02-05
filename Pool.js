@@ -56,6 +56,19 @@ let getToken =function(UID){
     return getTokenPromise;
 }
 
+//FUNCTION getToken Key
+let isToken =function(Token){
+    getTokenPromise = new Promise (function(resolve,reject){
+
+    var  Ref = keyRef.child("/"+Token);
+    Ref.once("value", function(snapshot) {
+        resolve(snapshot.val());
+
+      });
+    });
+    return getTokenPromise;
+}
+
 
 //FUNCTION getCoupondata
 let getCoupon =function(couponID){
@@ -109,7 +122,17 @@ var app = express();
 json = require('json-simple');
 
 
+// Send  HTML page to client
+app.get('/debug101', function(req, res){
+    var ip = req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress;
+    console.log("["+ip.replace("::ffff:","")+svrts()+' ~] "GET /debug101.html:3000"')
 
+    //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
+    var html = fs.readFileSync('index.html');
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end(html);
+});
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -137,7 +160,7 @@ app.post('/getCoupon', function(req, res){
 
 
 
-    auth = req.body.data.auth;
+    token = req.body.data.token;
     vendor = req.body.data.VendorID;
     couponCode = req.body.data.couponCode;
  
@@ -145,7 +168,7 @@ app.post('/getCoupon', function(req, res){
 var ip = req.headers['x-forwarded-for'] ||
 req.connection.remoteAddress;
  
-console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+couponCode+' by AUTH '+ auth+'"');
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+couponCode+' by token '+ token+'"');
 //end notifiocation 
  
  
@@ -154,17 +177,50 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
         /*
         1. Check validate digital signature 
         2. Count Coupon and check it's is still usable 
-        
-        
         */
     //End validate
+    
+    getCoupon(couponCode).then(function(coupon) {
+        console.log(coupon) //will log results.
+        if(coupon.Allowance>0){// coupon exist 
+          
+            isToken(token).then(function(tokenresult) {
+                console.log(tokenresult) //will log results.
+                if(tokenresult){// token exist 
+                    
+/*
+       
+                            Do Chain ^^^^^
+        
+*/
 
+                }else { // token not found
+        
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.end("ERROR: Token not found");
+
+                }
+        
+             });
+
+
+
+
+        }else { // coupon not found
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end("ERROR: Coupon not found");
+        }
+
+     });
+    
   res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('thanks'+" " +req.body.data.couponID);
+  res.end('thanks'+" " +req.body.data.couponID); 
 });
 
 
 // fb front ->
+
+ 
 
 // wee authen
 app.post('/login', (req, res) => {
@@ -194,6 +250,10 @@ app.post('/login', (req, res) => {
 
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('Created new User');
+            //   redirect 
+            var html = fs.readFileSync('index.html');
+            res.end(html);
+            
         }
      })
 
@@ -218,7 +278,10 @@ app.post('/usecoupon', (req, res) => {
 app.post('/transfer', (req, res) => {
 
 });
-    
+// fetch userdata 
+app.post('/fetch', (req, res) => {
+
+}); 
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
 
