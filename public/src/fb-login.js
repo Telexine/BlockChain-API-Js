@@ -20,7 +20,6 @@
          if(response.status === 'connected'){
            console.log('Logged in and authenticated');
       
-           // LOGIN Complete  Tae Added send req to svr
            
      
             var accessToken = response.authResponse.accessToken; 
