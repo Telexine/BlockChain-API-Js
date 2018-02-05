@@ -197,7 +197,7 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
                 }else { // token not found
         
                     res.writeHead(200, {'Content-Type': 'text/html'});
-                    res.end("ERROR: Token not found");
+                    res.end("ERROR: Token not found");    return;  
 
                 }
         
@@ -208,13 +208,13 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
 
         }else { // coupon not found
             res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end("ERROR: Coupon not found");
+            res.end("ERROR: Coupon not found");   return;  
         }
 
      });
     
   res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('thanks'+" " +req.body.data.couponID); 
+  res.end('Got Coupon'); 
 });
 
 
@@ -235,10 +235,10 @@ app.post('/login', (req, res) => {
        - else create new user
     */
 
-    //token = req.body.data.token;
-    //username= req.body.data.username;
-    token="test";
-    username = "AA";
+    token = req.body.data.token;
+    username= req.body.data.username;
+   // token="test";
+   // username = "AA";
     getToken(token).then(function(result) {
         console.log(result) //will log results.
         if(result){//exist
@@ -257,12 +257,6 @@ app.post('/login', (req, res) => {
         }
      })
 
-    /*jwt.sign({user}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
-      res.json({
-        token
-      });
-     
-    }); */
 
   });
 
@@ -273,14 +267,62 @@ app.post('/login', (req, res) => {
 //*** */
 
 app.post('/usecoupon', (req, res) => {
+    token = req.body.data.token;
+    allowance= req.body.data.allowance;
+    couponCode= req.body.data.couponCode;
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /usecoupon '+couponCode+' by token '+ token+" count ="+allowance  );
+//end notifiocation 
+
+
+getCoupon(couponCode).then(function(coupon) {
+    console.log(coupon) //will log results.
+    if(coupon.Allowance>0){// coupon exist 
+      
+        isToken(token).then(function(tokenresult) {
+            console.log(tokenresult) //will log results.
+            if(tokenresult){// token exist 
+                
+/*
+   
+                        Do Chain ^^^^^
     
+*/
+
+            }else { // token not found
+    
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end("ERROR: Token not found");
+
+            }
+    
+         });
+
+
+
+
+    }else { // coupon not found
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end("ERROR: Coupon not found");
+    }
+
+ });
+
+res.writeHead(200, {'Content-Type': 'text/html'});
+res.end('thanks'+" " +req.body.data.couponID); 
+
 });
 app.post('/transfer', (req, res) => {
+
+
+
 
 });
 // fetch userdata 
 app.post('/fetch', (req, res) => {
-
+ // do at node pool not at firebase
 }); 
 app.listen(port);
 console.log('Listening at http://localhost:' + port)

@@ -1,0 +1,122 @@
+{
+	"info": {
+		"name": "nodeJS block chain",
+		"_postman_id": "26760f46-6974-cdfe-82ec-5f124b423fa9",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:3000/getCoupon - valid coupon,token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":{\"token\":\"test\",\"VendorID\":\"CX0023\",\"couponCode\":\"xxxx\"}}"
+				},
+				"url": {
+					"raw": "localhost:3000/getCoupon",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"getCoupon"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/getCoupon - Invalid coupon,token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":{\"username\":\"test\",\"token\":\"test\"}}"
+				},
+				"url": {
+					"raw": "localhost:3000/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/login - Login,Create user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":{\"token\":\"test\",\"allowance\":1,\"couponCode\":\"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07\"}}"
+				},
+				"url": {
+					"raw": "localhost:3000/usecoupon",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"usecoupon"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/usecoupon - Valid",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":{\"token\":\"test\",\"allowance\":1,\"couponCode\":\"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07\"}}"
+				},
+				"url": {
+					"raw": "localhost:3000/usecoupon",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"usecoupon"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

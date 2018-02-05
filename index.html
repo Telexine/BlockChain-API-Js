@@ -182,16 +182,16 @@ let request = new Promise((resolve, reject) => {
             let Allowance=1; // fake
             //end chain 
 
-            Data =  {data:{token:Token,
-                allowance:Allowance,
-            couponCode:CouponID}}
+            Data =  {data:{
+                            token:Token,
+                            allowance:Allowance,
+                            couponCode:CouponID
+                            }
+                    }
         ;
 
             //encode 
             var json_str = JSON.stringify(Data); //JSON.parse()
-            
-            
-
             console.log(json_str);
 
           
