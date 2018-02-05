@@ -109,10 +109,18 @@ function registercoupon(couponCode,description,vendor,timestamp,Expiredate,allow
 
 function deductAllowance(couponCode,num){
     var  Ref = couponRef.child("/"+couponCode);
-    ref
+    Ref.once("value", function(snapshot) {
+        console.log(snapshot.val().Allowance);
+        Ref.update({
+            Allowance:(snapshot.val().Allowance-num)
+          });
+         
+      });
+
+      /*
     Ref.set({
         username:Username
-      });
+      });*/
 }
 //##########  END Firebase Function 
 
@@ -207,10 +215,8 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
 /*
                             Do Chain ^^^^^
 */
-
-
 Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,couponCode));
-
+deductAllowance(couponCode,1); 
 
 
                 }else { // token not found
@@ -447,7 +453,7 @@ let Pool = new Blockchain();
 console.log(Pool.getLatestBlock().hash);
 
 
-
+//deductAllowance("08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07",1);
 
 /*#########################################################
 ##                      END INIT     ###
