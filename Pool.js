@@ -41,7 +41,12 @@ function CreateUser(Token,Username){
         username:Username
       });
 }
-
+function add(Token,Username){
+    var  Ref = keyRef.child("/"+Token);
+    Ref.set({
+        username:Username
+      });
+}
 
 //FUNCTION getToken Key
 let getToken =function(UID){
@@ -62,6 +67,7 @@ let isToken =function(Token){
 
     var  Ref = keyRef.child("/"+Token);
     Ref.once("value", function(snapshot) {
+        snapshot.val();
         resolve(snapshot.val());
 
       });
@@ -100,6 +106,14 @@ function registercoupon(couponCode,description,vendor,timestamp,Expiredate,allow
       });
 }
 
+
+function deductAllowance(couponCode,num){
+    var  Ref = couponRef.child("/"+couponCode);
+    ref
+    Ref.set({
+        username:Username
+      });
+}
 //##########  END Firebase Function 
 
 
@@ -115,6 +129,8 @@ function registercoupon(couponCode,description,vendor,timestamp,Expiredate,allow
 // ######### 
 // ######### 
 // ######### 
+
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
@@ -189,10 +205,13 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
                 if(tokenresult){// token exist 
                     
 /*
-       
                             Do Chain ^^^^^
-        
 */
+
+
+Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,couponCode));
+
+
 
                 }else { // token not found
         
@@ -261,9 +280,11 @@ app.post('/login', (req, res) => {
   });
 
 
-// #####
+
+
+// ############################################
 //### CORE FUNCTION 
-//#$###
+//#$##########################################
 //*** */
 
 app.post('/usecoupon', (req, res) => {
@@ -284,24 +305,18 @@ getCoupon(couponCode).then(function(coupon) {
         isToken(token).then(function(tokenresult) {
             console.log(tokenresult) //will log results.
             if(tokenresult){// token exist 
-                
 /*
    
                         Do Chain ^^^^^
     
 */
 
+
             }else { // token not found
-    
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end("ERROR: Token not found");
-
             }
-    
          });
-
-
-
 
     }else { // coupon not found
         res.writeHead(200, {'Content-Type': 'text/html'});
@@ -315,7 +330,11 @@ res.end('thanks'+" " +req.body.data.couponID);
 
 });
 app.post('/transfer', (req, res) => {
-
+/**
+ * 1. validate 
+ * 2. create block
+ * 
+ */
 
 
 
@@ -326,20 +345,13 @@ app.post('/fetch', (req, res) => {
 }); 
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
-
  
-
-
-
-
-
-
-
-
 
 /** 
  *        BLOCK 
 */
+
+
 
 
 const  TX = { //Transaction Type
@@ -355,7 +367,7 @@ class Block {
       this.index = index;
       this.previousHash = previousHash;
       this.timestamp = Date.now();
-      this.data = data;
+ 
       this.hash = this.calculateHash();
 
 
@@ -376,12 +388,19 @@ class Block {
   
   
   class Blockchain{
+
+    
+
       constructor() {
+          this.Size = 0; 
           this.chain = [this.createGenesisBlock()];
+         
       }
-  
+      
       createGenesisBlock() {
+        this.Size++;
         return new Block(0,'' ,TX.CREATE,"signature",'userID',"VendorID",0,"couponCode");
+      
       }
   
       getLatestBlock() {
@@ -392,6 +411,7 @@ class Block {
           newBlock.previousHash = this.getLatestBlock().hash;
           newBlock.hash = newBlock.calculateHash();
           this.chain.push(newBlock);
+          this.Size++;
       }
   
       isChainValid() {
@@ -410,8 +430,28 @@ class Block {
   
           return true;
       }
+
+      size(){
+        return this.Size;
+      }
   }
 
+
+/*#########################################################
+##                           INIT                         ###
+########################################################### */
+
+let Pool = new Blockchain();
+//console.log(Pool.size());
+
+console.log(Pool.getLatestBlock().hash);
+
+
+
+
+/*#########################################################
+##                      END INIT     ###
+########################################################## */
 
 
 
