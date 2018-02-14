@@ -1,3 +1,5 @@
+import { truncate } from "fs";
+
 const SHA256 = require("crypto-js/sha256");
 const port = 3000;
 const jwt = require('jsonwebtoken');//wee-auth
@@ -311,15 +313,16 @@ getCoupon(couponCode).then(function(coupon) {
         isToken(token).then(function(tokenresult) {
             console.log(tokenresult) //will log results.
             if(tokenresult){// token exist 
-/*
+/*               
    
-                        Do Chain ^^^^^ done
+                        Do Chain ^^^^^ pass thru this it's mean user and code  exist 
     
 */
-//chk 
-
+ 
+                    // เช็คว่ามคนนี้ีมีปองนี้อยู่แล้วไหม แล้วยังไม่ได้ใช้
+                if(getCouponTransaction(couponCode,token,true)){
                     Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
-
+                }
             }else { // token not found
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end("ERROR: Token not found");
@@ -481,16 +484,41 @@ class Block {
   
           return true;
       }
-      getCouponTransaction(couponcode,token){//ดู couponcode นั้นๆ
+      getCouponTransaction(couponcode,token,Valid/*:Optional, false = Used */){//ดู couponcode นั้นๆ
         
+        if(typeof Valid === "undefined") {
+            Valid = false;// unuse
+        }
+        let _flag = false;// chk is still usable
+        let _findex = 0,_index=0;
         for(let i = 0;i<this.size();i++){
               let CouponCode = this.chain[i].couponCode;
               let Token = this.chain[i].token;
             if(CouponCode==(couponcode)&&Token==token){
-                 return this.chain[i];
+                if(Valid==true){
+                    if(this.chain[i].amount>0){
+                        _flag=true;
+                        _findex=i;
+                        next; // it's used, then check next
+                    }else{
+                        _flag=false;
+                        return this.chain[i]; // return unuse coupon
+                    }
+                }else{
+                    return this.chain[i]; // not care about use or not 
+                }
             }
         }
+        if(Valid&_flag){
+            //return the lastest coupon that useable
+            return this.chain[_findex];
+        }else if(Valid&_flag==false){
+            return false; // not usable anymore 
+        } 
+        return this.chain[_index]; // return lasted coupon that usable or not
       }
+
+
       size(){
         return this.Size;
       }
