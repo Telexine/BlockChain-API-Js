@@ -66,8 +66,8 @@ let getuserPk =function(UID){
     getUserPromise = new Promise (function(resolve,reject){
 
     var  Ref = keyRef.child("/"+UID+"/pk");
-    Ref.once("value", function(snapshot) {
-        resolve(snapshot.val());
+        resolve(    Ref.once("value", function(snapshot) {
+snapshot.val());
          
       });
     });

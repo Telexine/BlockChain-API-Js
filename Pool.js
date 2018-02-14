@@ -215,8 +215,8 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
 /*
                             Do Chain ^^^^^
 */
-Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,couponCode));
-deductAllowance(couponCode,1); 
+                Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,couponCode));
+                deductAllowance(couponCode,1); 
 
 
                 }else { // token not found
@@ -313,10 +313,12 @@ getCoupon(couponCode).then(function(coupon) {
             if(tokenresult){// token exist 
 /*
    
-                        Do Chain ^^^^^
+                        Do Chain ^^^^^ done
     
 */
+//chk 
 
+                    Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
 
             }else { // token not found
                 res.writeHead(200, {'Content-Type': 'text/html'});
@@ -341,6 +343,47 @@ app.post('/transfer', (req, res) => {
  * 2. create block
  * 
  */
+
+  token = req.body.data.token;
+    allowance= req.body.data.allowance;
+    couponCode= req.body.data.couponCode;
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /usecoupon '+couponCode+' by token '+ token+" count ="+allowance  );
+//end notifiocation 
+
+
+getCoupon(couponCode).then(function(coupon) {
+    console.log(coupon) //will log results.
+    if(coupon.Allowance>0){// coupon exist 
+      
+        isToken(token).then(function(tokenresult) {
+            console.log(tokenresult) //will log results.
+            if(tokenresult){// token exist 
+/*
+   
+                        Do Chain ^^^^^
+   !@#$%^ 
+*/ 
+                    Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,this.calculateHash()));
+                    
+            }else { // token not found
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end("ERROR: Token not found");
+            }
+         });
+
+    }else { // coupon not found
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end("ERROR: Coupon not found");
+    }
+
+ });
+
+res.writeHead(200, {'Content-Type': 'text/html'});
+res.end('thanks'+" " +req.body.data.couponID); 
+
 
 
 
@@ -369,7 +412,7 @@ const  TX = { //Transaction Type
 
 
 class Block {
-    constructor(index, previousHash = '',TX,signature,VendorAddress,amount,couponCode) {
+    constructor(index, previousHash = '',TX,Token,VendorAddress,amount,couponCode) {
       this.index = index;
       this.previousHash = previousHash;
       this.timestamp = Date.now();
@@ -381,12 +424,14 @@ class Block {
         // Transaction Data 
 
         this.TX = TX;
-        this.signature = signature;// client pubkey
+        this.token = Token;// client ID
         this.VendorAddress = VendorAddress;
         this.couponCode = couponCode
         this.amount = amount;
     }
-  
+    getCoupon(){
+        return this.couponCode;
+    }
     calculateHash() {
         return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
     }
@@ -436,7 +481,16 @@ class Block {
   
           return true;
       }
-
+      getCouponTransaction(couponcode,token){//ดู couponcode นั้นๆ
+        
+        for(let i = 0;i<this.size();i++){
+              let CouponCode = this.chain[i].couponCode;
+              let Token = this.chain[i].token;
+            if(CouponCode==(couponcode)&&Token==token){
+                 return this.chain[i];
+            }
+        }
+      }
       size(){
         return this.Size;
       }
@@ -448,10 +502,17 @@ class Block {
 ########################################################### */
 
 let Pool = new Blockchain();
-//console.log(Pool.size());
+//console.log(Pool.size()); 
 
-console.log(Pool.getLatestBlock().hash);
+console.log(Pool.getLatestBlock().hash)
+//console.log(Pool);
+ 
+// โชวบล็อกที่มี แฮชนั้นๆ
+Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
 
+Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,"ccc","vendor",1,"cscscsc"));
+console.log(Pool);
+console.log(Pool.getCouponTransaction(0,"signature"));
 
 //deductAllowance("08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07",1);
 
