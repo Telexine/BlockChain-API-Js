@@ -348,8 +348,9 @@ app.post('/transfer', (req, res) => {
  */
 
   token = req.body.data.token;
-    allowance= req.body.data.allowance;
-    couponCode= req.body.data.couponCode;
+  couponCode= req.body.data.couponCode;
+  recieverToken=  req.body.data.recieverToken; // ผู้รับ
+
 // notification 
 var ip = req.headers['x-forwarded-for'] ||
 req.connection.remoteAddress;
@@ -366,11 +367,16 @@ getCoupon(couponCode).then(function(coupon) {
             if(tokenresult){// token exist 
 /*
    
-                        Do Chain ^^^^^
+                        Do Chain pass thru this it's mean user and code  exist 
    !@#$%^ 
 */ 
-                    Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,this.calculateHash()));
-                    
+                    if(getCouponTransaction(couponCode,token,true)){
+                        
+                        // used that coupon then redeem to trasnfered token
+                        Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
+                        Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,recieverToken,vendor,1,this.calculateHash()));
+                    }
+      
             }else { // token not found
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end("ERROR: Token not found");
@@ -391,9 +397,18 @@ res.end('thanks'+" " +req.body.data.couponID);
 
 
 });
-// fetch userdata 
+
+/***
+ * 
+ *  PHASE 2 Function
+ * 
+ */
+// fetch  coupon userdata 
 app.post('/fetch', (req, res) => {
  // do at node pool not at firebase
+
+
+
 }); 
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
@@ -430,7 +445,7 @@ class Block {
         this.token = Token;// client ID
         this.VendorAddress = VendorAddress;
         this.couponCode = couponCode
-        this.amount = amount;
+        this.amount = amount; // 0 = used
     }
     getCoupon(){
         return this.couponCode;
@@ -484,6 +499,7 @@ class Block {
   
           return true;
       }
+ 
       getCouponTransaction(couponcode,token,Valid/*:Optional, false = Used */){//ดู couponcode นั้นๆ
         
         if(typeof Valid === "undefined") {
