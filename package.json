@@ -20,7 +20,8 @@
         "firebase-tools": "^3.17.4",
         "json-server": "^0.12.1",
         "json-simple": "^0.9.6",
-        "jsonwebtoken": "^8.1.1"
+        "jsonwebtoken": "^8.1.1",
+        "performance-now": "^2.1.0"
     },
     "main": "main.js"
 }

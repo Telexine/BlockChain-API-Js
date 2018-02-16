@@ -6,7 +6,7 @@ firebase = require('firebase');
 var admin = require("firebase-admin");
 require('es6-promise').polyfill();
 let ArrayList = require('array-list');
-
+ 
 
 //##########  INIT FBase Database  
 
@@ -191,10 +191,9 @@ app.get('/debug101', function(req, res){
     req.connection.remoteAddress;
     console.log("["+ip.replace("::ffff:","")+svrts()+' ~] "GET /debug101.html:3000"')
 
-    //var html = '<html><body><form method="post" action="http://localhost:3000">Name: <input type="text" name="name" /><input type="submit" value="Submit" /></form></body>';
     var html = fs.readFileSync('index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(html);
+    res.end("couponChain");
 });
 
 app.use(bodyParser.urlencoded({
@@ -220,8 +219,6 @@ app.get('/', function(req, res){
 
 // User request the coupon
 app.post('/getCoupon', function(req, res){
-
-
 
     token = req.body.data.token;
     vendor = req.body.data.VendorID;
@@ -257,6 +254,8 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
                 Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,token,vendor,1,couponCode));
                 deductAllowance(couponCode,1); 
 
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('Got Coupon');  return;
 
                 }else { // token not found
         
@@ -278,7 +277,7 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
      });
     
   res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('Got Coupon'); 
+  res.end('ERROR'); 
 });
 
 
@@ -314,24 +313,18 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Registered Coupon
  
     //Put on firebase
     registercoupon(couponCode,description,vendor,timestamp,Expiredate,allowance);
- 
-    //Vaildate done here 
-
- //End validate
-
+  
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.end('thanks'+" " +couponCode);
 });
-
-
-// fb front ->
-
  
 
 // wee authen
 app.post('/login', (req, res) => {
     // Mock user
- 
+
+
+
     // แยกส่วน body
     //Token = req.body.data.Token;
 
@@ -343,6 +336,14 @@ app.post('/login', (req, res) => {
 
     token = req.body.data.token;
     username= req.body.data.username;
+
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Logging In by '+ username+"/ Token: "+token+'"');
+//end notifiocation 
+
    // token="test";
    // username = "AA";
     getToken(token).then(function(result) {
@@ -356,9 +357,7 @@ app.post('/login', (req, res) => {
 
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('Created new User');
-            //   redirect 
-            var html = fs.readFileSync('index.html');
-            res.end(html);
+             
             
         }
      })
@@ -435,7 +434,7 @@ app.post('/transfer', (req, res) => {
 // notification 
 var ip = req.headers['x-forwarded-for'] ||
 req.connection.remoteAddress;
-console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /usecoupon '+couponCode+' by token '+ token+" count ="+allowance  );
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /transfer '+couponCode+' by token '+ token+"; To "+recieverToken  );
 //end notifiocation 
 
 
@@ -487,6 +486,13 @@ getCoupon(couponCode).then(function(coupon) {
 // fetch  coupon  of this user 
 app.post('/fetchAllCoupon', (req, res) => {
  // do at node pool not at firebase
+
+ // notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /fetchAllCoupon' );
+//end notifiocation 
+
  let  Data = [];
  getAllCoupon().then(function(result) {
     
@@ -517,11 +523,41 @@ app.post('/fetchAllCoupon', (req, res) => {
 }); 
 
 
+
+app.post('/showAllchain', (req, res) => {
+     
+
+ 
+
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Show all chain ');
+//end notifiocation 
+
+    res.writeHead(200, {'Content-Type': 'text/html'});
+ 
+    let Data = ArrayList();
+    for(let i = 0;i<Pool.size();i++){
+     
+            Data.push(Pool.chain[i]); 
+         
+      }
+     console.log(Data);
+
+  });
+
+
 // fetch  coupon  of this user 
 app.post('/fetchUsersCoupon', (req, res) => {
  // do at node pool not at firebase
  let Token = req.body.data.token;
- 
+  // notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /fetchUsersCoupon; By user-Token :'+Token );
+//end notifiocation 
  
 Datas = Pool.getThisUserChains(Token);
 
@@ -557,7 +593,12 @@ app.post('/getCouponData', (req, res) => {
     
    let  couponCode= req.body.data.couponCode;
 
-   
+   // notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /getCouponData from token :'+couponCode );
+//end notifiocation 
+ 
     // loop block,
    
     let Data = [];
@@ -652,9 +693,6 @@ class Block {
   
   
   class Blockchain{
-
-    
-
       constructor() {
           this.Size = 0; 
           this.chain = [this.createGenesisBlock()];
@@ -760,7 +798,8 @@ let Pool = new Blockchain();
 //console.log(Pool);
  
 // โชวบล็อกที่มี แฮชนั้นๆ
-Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,"EAAUnkVDtHboBAFurxzGUJlzUq6GYozbpueyWA3gZBMBhXfxdgS6AaGZCDBYMXebhMb3dvkXER944F7LRrCONsv0q7D2AiSgSipMuRQAZBwlSElaoaNCg4YtgVVoMGgT7i8Qk5jZAj3ZA5YPrT6Jy2p4vrQm0NijZCj1QW1DDUWzHRhLSg3n3Yi7pGIzSzcrj0EmfetYbNbgQZDZD","VID0001",1,"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07"));
+
+
 
 //  Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
 /*
