@@ -409,7 +409,59 @@ getCoupon(couponCode).then(function(coupon) {
  *  PHASE 2 Function
  * 
  */
-// fetch  coupon userdata 
+// fetch  coupon  of this user 
+app.post('/fetchUsersCoupon', (req, res) => {
+ // do at node pool not at firebase
+ let Token = req.body.data.token;
+ 
+ 
+Datas = Pool.getThisUserChains(Token);
+
+ // loop block,
+
+ let Data = [];
+ // get coupon    
+ for(let i = 0 ; i<Datas.size();i++ ){
+     let couponCode = Datas.get(i).couponCode;
+    
+     Data.push({data:couponCode});
+     /*
+     getCoupon(couponCode).then(function(result) {
+        let Desc= result.Description;
+        let timestamp= result.timestamp;
+        let  allowance= result.Allowance;
+            
+        
+            let Tmp_data = [];
+
+            Tmp_data ={
+                couponCode:couponCode,
+                description:Desc,
+                CreateDate:timestamp,
+                Allowance:allowance
+             };
+
+            Data.push(Tmp_data);
+
+        });
+            */
+         //encode 
+      
+      }
+      // then call each coupon on userdevice
+
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      let json = JSON.stringify(Data, null, 3);
+      res.end(json);
+     
+ 
+
+  
+
+}); 
+
+
+// fetch  coupon  of this user 
 app.post('/fetchUsersCoupon', (req, res) => {
  // do at node pool not at firebase
  let Token = req.body.data.token;
@@ -460,6 +512,60 @@ Datas = Pool.getThisUserChains(Token);
 
 }); 
 
+
+
+// fetch  coupon  of this user 
+app.post('/getCouponData', (req, res) => {
+    // do at node pool not at firebase
+  
+    
+   let  couponCode= req.body.data.couponCode;
+
+   
+    // loop block,
+   
+    let Data = [];
+    // get coupon    
+      
+   
+        Data.push({data:couponCode});
+     
+        getCoupon(couponCode).then(function(result) {
+           let Desc= result.Description;
+           let timestamp= result.CreateDate;
+           let  allowance= result.Allowance;
+           let  VID= result.VendorID;
+           
+               let Tmp_data = [];
+   
+               Tmp_data ={
+                   couponCode:couponCode,
+                   description:Desc,
+                   CreateDate:timestamp,
+                   Allowance:allowance,
+                   VID:VID
+                };
+   
+               Data.push(Tmp_data);
+
+
+               res.writeHead(200, {'Content-Type': 'application/json'});
+               let json = JSON.stringify(Tmp_data, null, 3);
+               res.end(json);
+           });
+               
+            //encode 
+         
+          
+         // then call each coupon on userdevice
+   
+       
+        
+    
+   
+     
+   
+   }); 
 
  
 app.listen(port);
