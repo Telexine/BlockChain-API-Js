@@ -7,34 +7,6 @@
 	},
 	"item": [
 		{
-			"name": "localhost:3000/getCoupon - valid coupon,token",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"data\":\n{\"token\":\"EAAUnkVDtHboBAFurxzGUJlzUq6GYozbpueyWA3gZBMBhXfxdgS6AaGZCDBYMXebhMb3dvkXER944F7LRrCONsv0q7D2AiSgSipMuRQAZBwlSElaoaNCg4YtgVVoMGgT7i8Qk5jZAj3ZA5YPrT6Jy2p4vrQm0NijZCj1QW1DDUWzHRhLSg3n3Yi7pGIzSzcrj0EmfetYbNbgQZDZD\",\n\"VendorID\":\"VID0001\",\n\"couponCode\":\"5f6609f6baa94880e490e25d3d3e37211eb41ebae0f4db1ff0c6f8fc64a2dc13\"\n}\n}"
-				},
-				"url": {
-					"raw": "localhost:3000/getCoupon",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"getCoupon"
-					]
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
 			"name": "localhost:3000/login/regis - true,positive",
 			"request": {
 				"method": "POST",
@@ -56,6 +28,62 @@
 					"port": "3000",
 					"path": [
 						"login"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/useCoupon - false",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":{\"token\":\"test\",\"allowance\":1,\"couponCode\":\"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07\"}}"
+				},
+				"url": {
+					"raw": "localhost:3000/usecoupon",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"usecoupon"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/getCoupon - valid coupon,token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\":\n{\"token\":\"EAAUnkVDtHboBAFurxzGUJlzUq6GYozbpueyWA3gZBMBhXfxdgS6AaGZCDBYMXebhMb3dvkXER944F7LRrCONsv0q7D2AiSgSipMuRQAZBwlSElaoaNCg4YtgVVoMGgT7i8Qk5jZAj3ZA5YPrT6Jy2p4vrQm0NijZCj1QW1DDUWzHRhLSg3n3Yi7pGIzSzcrj0EmfetYbNbgQZDZD\",\n\"VendorID\":\"VID0001\",\n\"couponCode\":\"5f6609f6baa94880e490e25d3d3e37211eb41ebae0f4db1ff0c6f8fc64a2dc13\"\n}\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/getCoupon",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"getCoupon"
 					]
 				},
 				"description": ""
@@ -91,7 +119,7 @@
 			"response": []
 		},
 		{
-			"name": "localhost:3000/useCoupon - false",
+			"name": "Fetch users coupon",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -102,19 +130,19 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"data\":{\"token\":\"test\",\"allowance\":1,\"couponCode\":\"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07\"}}"
+					"raw": "{\"data\":\n{ \"token\": \"EAAUnkVDtHboBAFurxzGUJlzUq6GYozbpueyWA3gZBMBhXfxdgS6AaGZCDBYMXebhMb3dvkXER944F7LRrCONsv0q7D2AiSgSipMuRQAZBwlSElaoaNCg4YtgVVoMGgT7i8Qk5jZAj3ZA5YPrT6Jy2p4vrQm0NijZCj1QW1DDUWzHRhLSg3n3Yi7pGIzSzcrj0EmfetYbNbgQZDZD\"\n} }"
 				},
 				"url": {
-					"raw": "localhost:3000/usecoupon",
+					"raw": "localhost:3000/fetchUsersCoupon",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
-						"usecoupon"
+						"fetchUsersCoupon"
 					]
 				},
-				"description": ""
+				"description": " "
 			},
 			"response": []
 		}

@@ -5,6 +5,8 @@ json = require('json-simple');
 firebase = require('firebase');
 var admin = require("firebase-admin");
 require('es6-promise').polyfill();
+let ArrayList = require('array-list');
+
 
 //##########  INIT FBase Database  
 
@@ -408,12 +410,58 @@ getCoupon(couponCode).then(function(coupon) {
  * 
  */
 // fetch  coupon userdata 
-app.post('/fetch', (req, res) => {
+app.post('/fetchUsersCoupon', (req, res) => {
  // do at node pool not at firebase
+ let Token = req.body.data.token;
+ 
+ 
+Datas = Pool.getThisUserChains(Token);
 
+ // loop block,
 
+ let Data = [];
+ // get coupon    
+ for(let i = 0 ; i<Datas.size();i++ ){
+     let couponCode = Datas.get(i).couponCode;
+
+     Data.push({data:couponCode});
+     /*
+     getCoupon(couponCode).then(function(result) {
+        let Desc= result.Description;
+        let timestamp= result.timestamp;
+        let  allowance= result.Allowance;
+            
+        
+            let Tmp_data = [];
+
+            Tmp_data ={
+                couponCode:couponCode,
+                description:Desc,
+                CreateDate:timestamp,
+                Allowance:allowance
+             };
+
+            Data.push(Tmp_data);
+
+        });
+            */
+         //encode 
+      
+      }
+      // then call each coupon on userdevice
+
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      let json = JSON.stringify(Data, null, 3);
+      res.end(json);
+     
+ 
+
+  
 
 }); 
+
+
+ 
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
  
@@ -504,7 +552,7 @@ class Block {
   
           return true;
       }
- 
+      // 2 argument = get block ; 3 args = get un redeem block
       getCouponTransaction(couponcode,token,Valid/*:Optional, false = Used */){//ดู couponcode นั้นๆ
         
         if(typeof Valid === "undefined") {
@@ -539,7 +587,20 @@ class Block {
         return this.chain[_index]; // return lasted coupon that usable or not
       }
 
+      getThisUserChains(token){
 
+
+        let List = ArrayList();
+        for(let i = 0;i<this.size();i++){
+            let Token = this.chain[i].token;
+          if(Token==token){
+                    List.push(this.chain[i]); 
+              } 
+          }
+          return List;
+      }
+      
+    
       size(){
         return this.Size;
       }
@@ -553,19 +614,20 @@ class Block {
 let Pool = new Blockchain();
 //console.log(Pool.size()); 
 
-console.log(Pool.getLatestBlock().hash)
+//console.log(Pool.getLatestBlock().hash)
 //console.log(Pool);
  
 // โชวบล็อกที่มี แฮชนั้นๆ
+Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,"EAAUnkVDtHboBAFurxzGUJlzUq6GYozbpueyWA3gZBMBhXfxdgS6AaGZCDBYMXebhMb3dvkXER944F7LRrCONsv0q7D2AiSgSipMuRQAZBwlSElaoaNCg4YtgVVoMGgT7i8Qk5jZAj3ZA5YPrT6Jy2p4vrQm0NijZCj1QW1DDUWzHRhLSg3n3Yi7pGIzSzcrj0EmfetYbNbgQZDZD","VID0001",1,"08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07"));
 
-Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
+//  Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
 /*
 Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,"ccc","vendor",1,"cscscsc"));
 console.log(Pool);
 console.log(Pool.getCouponTransaction(0,"signature"));
 */
 //deductAllowance("08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07",1);
-
+//Pool.getThisUserChain("signature");
 /*#########################################################
 ##                      END INIT     ###
 ########################################################## */
