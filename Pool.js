@@ -1,13 +1,15 @@
-import { truncate } from "fs";
-
 const SHA256 = require("crypto-js/sha256");
 const port = 3000;
 const jwt = require('jsonwebtoken');//wee-auth
 json = require('json-simple');
 firebase = require('firebase');
 var admin = require("firebase-admin");
+require('es6-promise').polyfill();
 
 //##########  INIT FBase Database  
+
+
+/*
 var config = {
     apiKey: "AIzaSyDZ8RandVyq9fv-VE4Ugg49eqfl4c2U49k",
     authDomain: "couponchaintx.firebaseapp.com",
@@ -17,7 +19,7 @@ var config = {
   firebase.initializeApp(config);
   
   var ref = firebase.database().ref();
-
+*/
   
 // Firebase Admin 
  
@@ -320,8 +322,10 @@ getCoupon(couponCode).then(function(coupon) {
 */
  
                     // เช็คว่ามคนนี้ีมีปองนี้อยู่แล้วไหม แล้วยังไม่ได้ใช้
-                if(getCouponTransaction(couponCode,token,true)){
+                if(Pool.getCouponTransaction(couponCode,token,true)){
                     Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
+                    console.log("Complete : /n" );
+                    console.log(Pool);
                 }
             }else { // token not found
                 res.writeHead(200, {'Content-Type': 'text/html'});
@@ -334,10 +338,10 @@ getCoupon(couponCode).then(function(coupon) {
         res.end("ERROR: Coupon not found");
     }
 
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end('thanks'+" " +req.body.data.couponID); 
  });
 
-res.writeHead(200, {'Content-Type': 'text/html'});
-res.end('thanks'+" " +req.body.data.couponID); 
 
 });
 app.post('/transfer', (req, res) => {
@@ -370,10 +374,10 @@ getCoupon(couponCode).then(function(coupon) {
                         Do Chain pass thru this it's mean user and code  exist 
    !@#$%^ 
 */ 
-                    if(getCouponTransaction(couponCode,token,true)){
+                    if(Pool.getCouponTransaction(couponCode,token,true)){
                         
                         // used that coupon then redeem to trasnfered token
-                        Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
+                        Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.TRASNFER,token,vendor,0,couponCode));
                         Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,recieverToken,vendor,1,this.calculateHash()));
                     }
       
@@ -388,10 +392,10 @@ getCoupon(couponCode).then(function(coupon) {
         res.end("ERROR: Coupon not found");
     }
 
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end('thanks'+" " +req.body.data.couponID); 
+    
  });
-
-res.writeHead(200, {'Content-Type': 'text/html'});
-res.end('thanks'+" " +req.body.data.couponID); 
 
 
 
@@ -425,6 +429,7 @@ const  TX = { //Transaction Type
     CREATE : {value:0},
     UPDATE : {value:1},
     DELETE : {value:2},
+    TRASNFER: {value:3}
 };
 
 
@@ -511,14 +516,14 @@ class Block {
               let CouponCode = this.chain[i].couponCode;
               let Token = this.chain[i].token;
             if(CouponCode==(couponcode)&&Token==token){
-                if(Valid==true){
+                if(Valid==true){ // :: Optional 3rd arg check 
                     if(this.chain[i].amount>0){
                         _flag=true;
                         _findex=i;
-                        next; // it's used, then check next
+                        continue; // it's used, then check next
                     }else{
                         _flag=false;
-                        return this.chain[i]; // return unuse coupon
+                       // return this.chain[i]; // return unuse coupon
                     }
                 }else{
                     return this.chain[i]; // not care about use or not 
@@ -552,12 +557,13 @@ console.log(Pool.getLatestBlock().hash)
 //console.log(Pool);
  
 // โชวบล็อกที่มี แฮชนั้นๆ
-Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
 
+Pool.getCouponTransaction(Pool.getLatestBlock().hash,"signature");
+/*
 Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.CREATE,"ccc","vendor",1,"cscscsc"));
 console.log(Pool);
 console.log(Pool.getCouponTransaction(0,"signature"));
-
+*/
 //deductAllowance("08d511dd738e67223bc183c0a064c847d861fc1fb45f51572a9501a8c1826b07",1);
 
 /*#########################################################
@@ -568,8 +574,9 @@ console.log(Pool.getCouponTransaction(0,"signature"));
 
 
 
-
-// Misc FUNCTION
+/*#########################################################
+##                           Misc FUNCTION              ###
+########################################################### */
  
 function addDays(date, days) {
     var result = new Date(date);
