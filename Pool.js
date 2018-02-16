@@ -100,6 +100,39 @@ let getCoupon =function(couponID){
     return getCouponPromise;
 }
 
+//FUNCTION getCoupondata
+let getAllCoupon =function(){
+    getAllCouponPromise = new Promise (function(resolve,reject){
+
+    var  Ref = couponRef.child("/");
+    Ref.once("value", function(snapshot) {
+        data = snapshot.val();
+        if(data==null){
+            console.log("code "+couponID+ " not found.");
+            return;
+        }
+
+        resolve(snapshotToArray(snapshot));
+   
+      });
+   
+    });
+    return getAllCouponPromise;
+}
+
+
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
 //FUNCTION register Coupon to firebase
 function registercoupon(couponCode,description,vendor,timestamp,Expiredate,allowance){
     var  Ref = couponRef.child("/"+couponCode);
@@ -246,6 +279,48 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
     
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.end('Got Coupon'); 
+});
+
+
+
+// vender Register Coupon
+app.post('/registercoupon', function(req, res){
+  
+    // check digitalsignature
+    /*
+    1.  
+    2. decrypt pubey to check signature that is valid 
+    */
+
+    //end checkdigitalsignture
+ 
+    //working
+   let description = req.body.data.description;
+   let vendor = req.body.data.VendorID;
+   let timestamp = Date.now();
+   let Expiredate = addDays(timestamp,req.body.data.Expiredate);
+   let allowance =  req.body.data.allowance;
+
+   
+// notification 
+var ip = req.headers['x-forwarded-for'] ||
+req.connection.remoteAddress;
+
+console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Registered Coupon by '+ vendor+"/ desc: "+description+'"');
+//end notifiocation 
+ 
+    // generatehash ID
+    let couponCode = SHA256(JSON.stringify(description+vendor+timestamp+Expiredate+timestamp+allowance).toString());
+ 
+    //Put on firebase
+    registercoupon(couponCode,description,vendor,timestamp,Expiredate,allowance);
+ 
+    //Vaildate done here 
+
+ //End validate
+
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end('thanks'+" " +couponCode);
 });
 
 
@@ -410,54 +485,35 @@ getCoupon(couponCode).then(function(coupon) {
  * 
  */
 // fetch  coupon  of this user 
-app.post('/fetchUsersCoupon', (req, res) => {
+app.post('/fetchAllCoupon', (req, res) => {
  // do at node pool not at firebase
- let Token = req.body.data.token;
- 
- 
-Datas = Pool.getThisUserChains(Token);
-
- // loop block,
-
- let Data = [];
- // get coupon    
- for(let i = 0 ; i<Datas.size();i++ ){
-     let couponCode = Datas.get(i).couponCode;
+ let  Data = [];
+ getAllCoupon().then(function(result) {
     
-     Data.push({data:couponCode});
-     /*
-     getCoupon(couponCode).then(function(result) {
-        let Desc= result.Description;
-        let timestamp= result.timestamp;
-        let  allowance= result.Allowance;
-            
-        
-            let Tmp_data = [];
-
-            Tmp_data ={
-                couponCode:couponCode,
-                description:Desc,
-                CreateDate:timestamp,
-                Allowance:allowance
-             };
-
-            Data.push(Tmp_data);
-
-        });
-            */
-         //encode 
-      
-      }
-      // then call each coupon on userdevice
-
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      let json = JSON.stringify(Data, null, 3);
-      res.end(json);
-     
  
+    // get coupon    
+    for(let i = 0 ; i<result.length;i++ ){
+       let createDate = result[i].CreateDate;
+       let description = result[i].Description;
+       let couponCode = result[i].couponCode;
+       let allowance = result[i].Allowance;
+       let vendorID = result[i].VendorID;
+       
+       Data.push({couponCode:couponCode,
+          description:description,
+          createDate:createDate,
+          allowance:allowance,
+          vendorID:vendorID
+      });
+   
+    }
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    let json = JSON.stringify(Data, null, 3);
+    res.end(json);
+});
 
-  
-
+ 
+     
 }); 
 
 
@@ -477,27 +533,7 @@ Datas = Pool.getThisUserChains(Token);
      let couponCode = Datas.get(i).couponCode;
 
      Data.push({data:couponCode});
-     /*
-     getCoupon(couponCode).then(function(result) {
-        let Desc= result.Description;
-        let timestamp= result.timestamp;
-        let  allowance= result.Allowance;
-            
-        
-            let Tmp_data = [];
-
-            Tmp_data ={
-                couponCode:couponCode,
-                description:Desc,
-                CreateDate:timestamp,
-                Allowance:allowance
-             };
-
-            Data.push(Tmp_data);
-
-        });
-            */
-         //encode 
+   
       
       }
       // then call each coupon on userdevice
@@ -550,7 +586,7 @@ app.post('/getCouponData', (req, res) => {
 
 
                res.writeHead(200, {'Content-Type': 'application/json'});
-               let json = JSON.stringify(Tmp_data, null, 3);
+               let json = JSON.stringify(data, null, 3);
                res.end(json);
            });
                
@@ -738,8 +774,7 @@ console.log(Pool.getCouponTransaction(0,"signature"));
 ##                      END INIT     ###
 ########################################################## */
 
-
-
+ 
 
 
 /*#########################################################
