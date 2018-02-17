@@ -262,22 +262,21 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Request Coupon '+
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end("ERROR: Token not found");    return;  
 
-                }
-        
+                }// coupon not found
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end("ERROR: Coupon not found");   return;  
              });
 
 
 
 
-        }else { // coupon not found
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end("ERROR: Coupon not found");   return;  
+        }else { 
+          
         }
 
      });
     
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('ERROR'); 
+   
 });
 
 
@@ -347,7 +346,7 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Logging In by '+ 
    // token="test";
    // username = "AA";
     getToken(token).then(function(result) {
-        console.log(result) //will log results.
+       // console.log(result) //will log results.
         if(result){//exist
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('Logged');
@@ -385,11 +384,11 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /usecoupon '+coupon
 
 
 getCoupon(couponCode).then(function(coupon) {
-    console.log(coupon) //will log results.
+    //console.log(coupon) //will log results.
     if(coupon.Allowance>0){// coupon exist 
       
         isToken(token).then(function(tokenresult) {
-            console.log(tokenresult) //will log results.
+         //   console.log(tokenresult) //will log results.
             if(tokenresult){// token exist 
 /*               
    
@@ -401,7 +400,9 @@ getCoupon(couponCode).then(function(coupon) {
                 if(Pool.getCouponTransaction(couponCode,token,true)){
                     Pool.addBlock(new Block(0,Pool.getLatestBlock().hash,TX.DELETE,token,vendor,0,couponCode));
                     console.log("Complete : /n" );
-                    console.log(Pool);
+                   // console.log(Pool);
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.end("Complete");
                 }
             }else { // token not found
                 res.writeHead(200, {'Content-Type': 'text/html'});
@@ -415,7 +416,7 @@ getCoupon(couponCode).then(function(coupon) {
     }
 
     res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end('thanks'+" " +req.body.data.couponID); 
+    res.end('Done'); 
  });
 
 
@@ -439,11 +440,11 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /transfer '+couponC
 
 
 getCoupon(couponCode).then(function(coupon) {
-    console.log(coupon) //will log results.
+    //console.log(coupon) //will log results.
     if(coupon.Allowance>0){// coupon exist 
       
         isToken(token).then(function(tokenresult) {
-            console.log(tokenresult) //will log results.
+          //  console.log(tokenresult) //will log results.
             if(tokenresult){// token exist 
 /*
    
@@ -493,7 +494,7 @@ req.connection.remoteAddress;
 console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /fetchAllCoupon' );
 //end notifiocation 
 
- let  Data = [];
+ let  Data = "";
  getAllCoupon().then(function(result) {
     
  
@@ -501,21 +502,24 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST /fetchAllCoupon' );
     for(let i = 0 ; i<result.length;i++ ){
        let createDate = result[i].CreateDate;
        let description = result[i].Description;
-       let couponCode = result[i].couponCode;
+       let couponCode = result[i].key;
        let allowance = result[i].Allowance;
        let vendorID = result[i].VendorID;
-       
-       Data.push({couponCode:couponCode,
+       /*
+       Data.push({data:{couponCode:couponCode,
           description:description,
           createDate:createDate,
           allowance:allowance,
           vendorID:vendorID
-      });
+      });*/
+
+      Data+= '`'+createDate+","+description+","+couponCode+","+allowance+","+vendorID;
+   
    
     }
     res.writeHead(200, {'Content-Type': 'application/json'});
-    let json = JSON.stringify(Data, null, 3);
-    res.end(json);
+    let json = Data;
+    res.end(Data);
 });
 
  
@@ -544,7 +548,7 @@ console.log("["+ip.replace("::ffff:","")+ svrts()+' ~] "POST / Show all chain ')
             Data.push(Pool.chain[i]); 
          
       }
-     console.log(Data);
+   //  console.log(Data);
 
   });
 
