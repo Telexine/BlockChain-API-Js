@@ -18,3 +18,14 @@ this is example program of blockchain
 
 
 ![alt text](https://preview.ibb.co/iBL1hG/Screen_Shot_2560_12_27_at_13_46_39.png)
+
+
+## Data Structure
+
+### Diagram
+![alt text](https://i.imgur.com/undefined.png)
+### UML
+![alt text](https://i.imgur.com/NXyWj42.png)
+### Swim Lane Route method
+![alt text](https://i.imgur.com/22WMJk2.png)
+![alt text](https://i.imgur.com/rft6RD5.png)
